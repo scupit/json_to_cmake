@@ -171,6 +171,13 @@ class CMakeBuilder():
             print("\"", target[0].upper() + target[1:], "\"", end=" ", sep="", file=self.writestream)
         print(")", file=self.writestream)
 
+    def writeDefaultBuildTarget(self, targetName):
+        if targetName != "":
+            self.writeNewlines()
+            self.writeIf("\"${CMAKE_BUILD_TYPE}\" STREQUAL \"\"")
+            print("\tset( CMAKE_BUILD_TYPE \"", targetName[0].upper() + targetName[1:].lower(), "\" )", sep="", file=self.writestream)
+            self.writeEndif()
+
     def writeMessage(self, message, before=""):
         print(before + "message( \"", message, "\" )", sep="", file=self.writestream)
 

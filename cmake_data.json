@@ -1,6 +1,6 @@
 {
-    "min_cmake_version": "3.7"
-    "project_name": "test project",
+    "min_cmake_version": "3.7",
+    "project_name": "test_project",
 
     "default_cpp_standard": "11",
     "default_c_standard": "99",
@@ -30,7 +30,7 @@
             "executable_output_dir": "bin"
         },
 
-        "main_library" {
+        "main_library": {
             "type": "static_lib",
             "r_source_dirs": [
                 "src"
@@ -77,5 +77,7 @@
                 "-s"
             ]
         }
-    }
+    },
+
+    "default_target": "debug"
 }

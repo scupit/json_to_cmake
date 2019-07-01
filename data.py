@@ -138,6 +138,13 @@ class Data():
             # given flags or require different flag lists altogether if the flags are
             # different across (for) other compilers
 
+        # Check for optional default_target
+        if "default_target" in parsedJSON:
+            self.default_target = parsedJSON["default_target"]
+        else:
+            self.default_target = ""
+
+
         # Check for output
         if _hasTag(parsedJSON, "output"):
             # output = empty dict, for use later. (Makes changing values easier)

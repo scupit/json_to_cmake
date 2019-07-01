@@ -39,6 +39,11 @@ def writeCMakeFiles(rootDir):
 
         targetKeys = dataObj.targets.keys()
 
+        if dataObj.default_target != "":
+            writer.writeDefaultBuildTarget(dataObj.default_target)
+        else:
+            writer.writeDefaultBuildTarget(targetKeys[0])
+
         writer.writeBuildTargetList(targetKeys)
 
         for buildTargetName in targetKeys:
