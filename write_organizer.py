@@ -1,5 +1,6 @@
-import data
-import file_write
+from json.decoder import JSONDecodeError
+from data import Data
+from file_write import CMakeBuilder
 
 # TODO: Add support for writing these files recursively based on the output items.
 # Currently only a single CMakeLists.txt file is written in the root directory. This
@@ -9,7 +10,14 @@ import file_write
 def writeCMakeFiles(rootDir):
 
     try:
-        dataObj = Data(rootDir)
+        try:
+            dataObj = Data(rootDir)
+        except FileNotFoundError as e:
+            print("In initialization of Data object: ")
+            raise e
+        except JSONDecodeError as e:
+            print("Invalid JSON provided in initialization of Data object...")
+            raise e
         writer = CMakeBuilder(rootDir + "/CMakeLists.txt")
 
         writer.writeVersion(dataObj.cmake_tag_version)
@@ -19,24 +27,27 @@ def writeCMakeFiles(rootDir):
 
         for outputNameKey in outputKeys:
             if dataObj.output[outputNameKey]["type"] == "executable":
-                writer.writeExecutableOutput(key, dataObj.output[outputNameKey]["source_files"], dataObj.output[outputNameKey]["include_directories"], dataObj.output[outputNameKey]["executable_output_dir"])
+                writer.writeExecutableOutput(outputNameKey, dataObj.output[outputNameKey]["source_files"], dataObj.output[outputNameKey]["include_directories"], dataObj.output[outputNameKey]["executable_output_dir"])
             elif dataObj.output[outputNameKey]["type"] == "static_lib":
-                writer.writeLibraryOutput(key, True, dataObj.output[outputNameKey]["source_files"], dataObj.output[outputNameKey]["include_directories"], dataObj.output[outputNameKey]["archive_output_dir"], dataObj.output[outputNameKey]["library_output_dir"])
+                writer.writeLibraryOutput(outputNameKey, True, dataObj.output[outputNameKey]["source_files"], dataObj.output[outputNameKey]["include_directories"], dataObj.output[outputNameKey]["archive_output_dir"], dataObj.output[outputNameKey]["library_output_dir"])
             else:
                 # Can assume the output type is "shared_lib" at this point
-                writer.writeLibraryOutput(key, False, dataObj.output[outputNameKey]["source_files"], dataObj.output[outputNameKey]["include_directories"], dataObj.output[outputNameKey]["archive_output_dir"], dataObj.output[outputNameKey]["library_output_dir"])
+                writer.writeLibraryOutput(outputNameKey, False, dataObj.output[outputNameKey]["source_files"], dataObj.output[outputNameKey]["include_directories"], dataObj.output[outputNameKey]["archive_output_dir"], dataObj.output[outputNameKey]["library_output_dir"])
 
         writer.writeCppStandards(dataObj.allowed_cpp_standards, dataObj.default_cpp_standard)
         writer.writeCStandards(dataObj.allowed_c_standards, dataObj.default_c_standard)
 
         targetKeys = dataObj.targets.keys()
 
+        writer.writeBuildTargetList(targetKeys)
+
         for buildTargetName in targetKeys:
             writer.writeBuildTarget(buildTargetName, dataObj.targets[buildTargetName]["c_flags"], dataObj.targets[buildTargetName]["c_flags"])
 
-        writer.close()
+        # writer.close()
     except KeyError as e:
         print("ERROR: Problem with JSON file. See below:\n")
         print(str(e))
     except TypeError as e:
-        print("ERROR:", str(e))
+        print("(TYPE) ERROR:", str(e))
+        raise e
