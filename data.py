@@ -42,8 +42,9 @@ def getFilesRecursively(basePath, otherPathStrings, fileExtensionTypes):
             # TODO: Make this more efficient using a combined regex. (The regex should combine all source types, as this currently traverses the directories recursively FOR EACH FILE TYPE. That will get badly very quick for large-scale projects)
             fileList += glob.glob( str( basePath/pathString/("**/*." + sourceType) ), recursive=True )
 
-    # Remove the basePath argument data from each returned pathString
-    fileList = map(lambda item : item[item.index(str(basePath)) + len(str(basePath)) + 1:], fileList)
+    if str(basePath) != ".":
+        # Remove the basePath argument data from each returned pathString
+        fileList = map(lambda item : item[item.find(str(basePath)) + len(str(basePath)) + 1:], fileList)
     return set(fileList)
 
 def getDirsRecursively(basePath, otherPathStrings):
@@ -52,8 +53,9 @@ def getDirsRecursively(basePath, otherPathStrings):
         # print("String: ", str( basePath/pathString ) + '/**/')
         dirList += glob.glob( str( basePath/pathString ) + '/**/', recursive=True)
 
-    # Removes the basePath argument data from each returned pathString
-    dirList = map(lambda item : item[item.index(str(basePath)) + len(str(basePath)) + 1:], dirList)
+    if str(basePath) != ".":
+        # Removes the basePath argument data from each returned pathString
+        dirList = map(lambda item : item[item.rfind(str(basePath)) + len(str(basePath)) + 1:], dirList)
     return set(dirList)
 
 
