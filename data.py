@@ -179,11 +179,12 @@ class Data():
                     self.output[keyName]["source_files"] += getFilesRecursively(p, outputItem["r_source_dirs"], allSourceTypes)
 
                 # Check for r_include_dirs
-                if _hasTag(outputItem, "r_include_dirs", parentTag=keyName, why="Without include directories and header files, the header files will not be compiler not included"):
+                if _hasTag(outputItem, "r_include_dirs", parentTag=keyName, why="Without header files, your files will not be able to include other files, and your program may not compile."):
                     self.output[keyName]["source_files"] += getFilesRecursively(p, outputItem["r_include_dirs"], allHeaderTypes)
 
+                if _hasTag(outputItem, "r_header_dirs", parentTag=keyName, why="Without passing the include directories of your header files to the compiler, there is a good chance they may not be included."):
                     # Initialize the include_directories array in this output item as well
-                    self.output[keyName]["include_directories"] = list(getDirsRecursively(p, outputItem["r_include_dirs"]))
+                    self.output[keyName]["include_directories"] = list(getDirsRecursively(p, outputItem["r_header_dirs"]))
 
                 if self.output[keyName]["type"].lower() == "executable":
                     # Only executable_output_dir is required
@@ -200,8 +201,19 @@ class Data():
                     if _hasTag(outputItem, "library_output_dir", parentTag=keyName, why="Specifies the directory into which the library files will be built. (Don't use a beginning /)"):
                         self.output[keyName]["library_output_dir"] = outputItem["library_output_dir"]
 
-                # TODO: Add support for linking libraries into these output libraries/executables
-                # using the tags "link_shared_libs", "link_static_libs".
-                # both compiled and IMPORTed libraries should be supported
+        # TODO: Check for imported_libs
+        self.imported_libs = {}
 
+        # Check for link_compiled
+        self.link_libs = {}
+        if "link_libs" in parsedJSON:
 
+            outputNameKeys = parsedJSON["link_libs"]
+            for outputName in outputNameKeys:
+                if not outputName in parsedJSON["output"]:
+                    raise KeyError("\"" + outputName + "\" tag in \"link_libs\" not found in \"output\". Make sure your names match.")
+                for libName in parsedJSON["link_libs"][outputName]:
+                    if not libName in parsedJSON["output"] and not libName in parsedJSON:
+                        raise KeyError("\"" + outputName + "\" tag in \"link_libs\" not found in \"output\" nor \"imported_libs\". Make sure your names match.")
+
+            self.link_libs = parsedJSON["link_libs"]

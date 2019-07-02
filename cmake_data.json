@@ -18,29 +18,78 @@
     ],
 
     "output": {
-        "main_exec": {
-            "type": "executable",
-            "base_file": "main.cpp",
-            "r_source_dirs": [
-                "src"
-            ],
-            "r_include_dirs": [
-                "include"
-            ],
-            "executable_output_dir": "bin"
-        },
+        
 
-        "main_library": {
-            "type": "static_lib",
+        "main_lib_shared": {
+            "type": "shared_lib",
             "r_source_dirs": [
                 "src"
+            ],
+            "r_header_dirs": [
+                "include"
             ],
             "r_include_dirs": [
                 "include"
             ],
             "archive_output_dir": "lib",
             "library_output_dir": "lib"
+        },
+
+        "main_lib_static": {
+            "type": "static_lib",
+            "r_source_dirs": [
+                "src"
+            ],
+            "r_header_dirs": [
+                "include"
+            ],
+            "r_include_dirs": [
+                "include"
+            ],
+            "archive_output_dir": "lib",
+            "library_output_dir": "lib"
+        },
+
+        "main_exec_sl": {
+            "type": "executable",
+            "base_file": "main.cpp",
+            "executable_output_dir": "bin",
+            "r_source_dirs": [
+
+            ],
+            "r_header_dirs": [
+                "include"
+            ],
+            "r_include_dirs": [
+
+            ]
+        },
+
+        "main_exec_dl": {
+            "type": "executable",
+            "base_file": "main.cpp",
+            "executable_output_dir": "bin",
+            "r_source_dirs": [
+
+            ],
+            "r_header_dirs": [
+                "include"        
+            ],
+            "r_include_dirs": [
+
+            ]
         }
+    },
+
+    "imported_libs": {},
+
+    "link_libs": {
+        "main_exec_sl": [
+            "main_lib_static"
+        ],
+        "main_exec_dl": [
+            "main_lib_shared"
+        ]
     },
 
     "targets": {

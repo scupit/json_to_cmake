@@ -2,7 +2,7 @@ import data
 import os
 
 def getOutputCmakeName(name):
-    return name.upper() + "_CMAKE_OUTPUT"
+    return name.lower() + "_cmake_output"
 
 def getOutputSourcesName(name):
     return name.upper() + "_SOURCES"
@@ -177,6 +177,12 @@ class CMakeBuilder():
             self.writeIf("\"${CMAKE_BUILD_TYPE}\" STREQUAL \"\"")
             print("\tset( CMAKE_BUILD_TYPE \"", targetName[0].upper() + targetName[1:].lower(), "\" )", sep="", file=self.writestream)
             self.writeEndif()
+
+    def writeLinkedLibs(self, outputNameLinkingTo, libNamesLinking):
+        print("\ntarget_link_libraries(", getOutputCmakeName(outputNameLinkingTo), file=self.writestream)
+        for libName in libNamesLinking:
+            print("\t", getOutputCmakeName(libName), file=self.writestream)
+        print(")", file=self.writestream)
 
     def writeMessage(self, message, before=""):
         print(before + "message( \"", message, "\" )", sep="", file=self.writestream)

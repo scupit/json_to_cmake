@@ -34,6 +34,13 @@ def writeCMakeFiles(rootDir):
                 # Can assume the output type is "shared_lib" at this point
                 writer.writeLibraryOutput(outputNameKey, False, dataObj.output[outputNameKey]["source_files"], dataObj.output[outputNameKey]["include_directories"], dataObj.output[outputNameKey]["archive_output_dir"], dataObj.output[outputNameKey]["library_output_dir"])
 
+        linkLibsKeys = dataObj.link_libs.keys()
+        for outputName in linkLibsKeys:
+            # This if statement might be unnecessary, since if no elements are
+            # contained, shouldn't the number of keys be 0?
+            if not len(dataObj.link_libs[outputName]) == 0:
+                writer.writeLinkedLibs(outputName, dataObj.link_libs[outputName])
+
         writer.writeCppStandards(dataObj.allowed_cpp_standards, dataObj.default_cpp_standard)
         writer.writeCStandards(dataObj.allowed_c_standards, dataObj.default_c_standard)
 
@@ -53,6 +60,7 @@ def writeCMakeFiles(rootDir):
     except KeyError as e:
         print("ERROR: Problem with JSON file. See below:\n")
         print(str(e))
+        raise e
     except TypeError as e:
         print("(TYPE) ERROR:", str(e))
         raise e
