@@ -3,6 +3,9 @@
 ## What is it?
 In short, this project is a python script which generates a CMakeLists.txt file from a user-written cmake_data.json file. Its goal is to somewhat automate the process of writing a CmakeLists file, and make visualizing what goes on in the file easier. Currently a work in progress, but functioning with limited functionality.
 
+## Why did I make this?
+I want to use Cmake for my projects, but I seriously want to avoid having to write CMakeLists.txt files by hand. Especially since I enjoy making a bunch of little C and C++ projects for practice, continuously writing CMakeLists files seemed like too much of a pain. I wanted a more intuitive (for me) system which would make it easier to visualize how a project is being built, while still allowing for semi-complex cross-platform projects. Using minimal writing to specify a complex structure was also a goal.
+
 ## Requirements to run
 * Python 3
 
@@ -302,3 +305,14 @@ A default output target can also be specified using `"default_target"` *(optiona
 ``` json
 "default_target": "debug"
 ```
+
+## Planned features
+[ ] Compiler-specific flags per target
+[ ] Platform-specific imports!!
+[ ] Specification of single include folders
+
+## Finished planned features
+:(
+
+## Other Plans
+* Refactoring!! I Really need to make this code more organized now that I know what needs to happen.
