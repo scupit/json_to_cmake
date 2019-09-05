@@ -245,3 +245,20 @@ A default standard can also be specified in `"default_cpp_standard"` *(optional)
 ``` json
 "default_cpp_standard": "11"
 ```
+
+### CMake version
+You must define the minimum required CMake version. The version should be at least CMake 3.x. This attribute is required, however it is not too important unless you are going to customize the generated file yourself using new CMake features. 
+
+Cmake version should be defined in the `"min_cmake_version"` attribute like so:
+**Example:**
+``` json
+"min_cmake_version": "3.12"
+```
+
+### Project Name
+The name of the CMake project. Should be defined in the `"project_name"` attribute.
+
+**Example:**
+``` json
+"project_name": "MySuperAwesomeProject"
+```
