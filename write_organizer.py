@@ -22,7 +22,6 @@ def writeCMakeFiles(rootDir):
 
         writer.writeVersion(dataObj.cmake_tag_version)
         writer.writeProjectName(dataObj.project_name)
-
         outputKeys = dataObj.output.keys()
 
         for outputNameKey in outputKeys:
@@ -30,21 +29,33 @@ def writeCMakeFiles(rootDir):
                 writer.writeExecutableOutput(outputNameKey, dataObj.output[outputNameKey]["source_files"], dataObj.output[outputNameKey]["include_directories"], dataObj.output[outputNameKey]["executable_output_dir"])
             elif dataObj.output[outputNameKey]["type"] == "static_lib":
                 writer.writeLibraryOutput(outputNameKey, True, dataObj.output[outputNameKey]["source_files"], dataObj.output[outputNameKey]["include_directories"], dataObj.output[outputNameKey]["archive_output_dir"], dataObj.output[outputNameKey]["library_output_dir"])
-            else:
+            elif dataObj.output[outputNameKey]["type"] == "shared_lib":
                 # Can assume the output type is "shared_lib" at this point
                 writer.writeLibraryOutput(outputNameKey, False, dataObj.output[outputNameKey]["source_files"], dataObj.output[outputNameKey]["include_directories"], dataObj.output[outputNameKey]["archive_output_dir"], dataObj.output[outputNameKey]["library_output_dir"])
+            # else:
+                # Raise some sort of 'invalid output type given' error. This code should never be reached due to type checking in the data class, but you never know.
 
+
+        # Write imported_libs
+        for importedLibName in dataObj.imported_libs:
+            writer.writeImportedLib(importedLibName, dataObj.imported_libs[importedLibName]["type"] == "static", dataObj.imported_libs[importedLibName]["lib_files"], dataObj.imported_libs[importedLibName]["include_directories"], dataObj.imported_libs[importedLibName]["header_files"])
+
+        # Write linked_libs
         linkLibsKeys = dataObj.link_libs.keys()
         for outputName in linkLibsKeys:
             # This if statement might be unnecessary, since if no elements are
             # contained, shouldn't the number of keys be 0?
             if not len(dataObj.link_libs[outputName]) == 0:
-                writer.writeLinkedLibs(outputName, dataObj.link_libs[outputName])
+                writer.writeLinkedLibs(outputName, dataObj.link_libs[outputName], dataObj.imported_libs)
 
+
+                # Write C++ standards
         writer.writeCppStandards(dataObj.allowed_cpp_standards, dataObj.default_cpp_standard)
+
+        # Write C standards
         writer.writeCStandards(dataObj.allowed_c_standards, dataObj.default_c_standard)
 
-        targetKeys = dataObj.targets.keys()
+        targetKeys = list(dataObj.targets)
 
         if dataObj.default_target != "":
             writer.writeDefaultBuildTarget(dataObj.default_target)

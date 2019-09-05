@@ -61,7 +61,7 @@
                 "include"
             ],
             "r_include_dirs": [
-
+                "include"
             ]
         },
 
@@ -76,19 +76,51 @@
                 "include"        
             ],
             "r_include_dirs": [
-
+                "include"
             ]
         }
     },
 
-    "imported_libs": {},
+    "imported_libs": {
+        "color": {
+            "type": "shared",
+            "root_dir": "dep/color_shared_lib/lib",
+            "lib_files": [
+                "color_shared_lib_cmake_output"
+            ],
+            "r_header_dirs": [
+                "dep/color_shared_lib/include"
+            ],
+            "r_include_dirs": [
+                "dep/color_shared_lib/include"
+            ]
+        },
+
+        "grass": {
+            "type": "static",
+            "root_dir": "dep/grass_static_lib/lib",
+            "lib_files": [
+                "grass_static_lib_cmake_output"
+            ],
+            "r_header_dirs": [
+                "dep/grass_static_lib/include"
+            ],
+            "r_include_dirs": [
+                "dep/grass_static_lib/include"
+            ]
+        }
+    },
 
     "link_libs": {
         "main_exec_sl": [
-            "main_lib_static"
+            "main_lib_static",
+            "color",
+            "grass"
         ],
         "main_exec_dl": [
-            "main_lib_shared"
+            "main_lib_shared",
+            "color",
+            "grass"
         ]
     },
 

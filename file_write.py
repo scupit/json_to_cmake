@@ -10,6 +10,11 @@ def getOutputSourcesName(name):
 def inBraces(string):
     return "${" + string + "}"
 
+def isInBraces(string):
+    return string[0] == '$' and string[1] == '{' and string[len(string)-1] == '}'
+
+def modifyNameWithIndex(string, index):
+    return string + "_" + str(index)
 
 
 class CMakeBuilder():
@@ -73,7 +78,10 @@ class CMakeBuilder():
         # We can assume that the sourcesArray should have at least one name in it
         # since compilation always requires at least one file
         for sourceFileName in sourcesArr:
-            print("\t${PROJECT_SOURCE_DIR}/", sourceFileName, sep="", file=self.writestream)
+            if sourceFileName[0] == '$':
+                print("\t", sourceFileName, sep="", file=self.writestream)
+            else:
+                print("\t${PROJECT_SOURCE_DIR}/", sourceFileName, sep="", file=self.writestream)
 
         print(")", file=self.writestream)
 
@@ -84,7 +92,10 @@ class CMakeBuilder():
         print("\ntarget_include_directories(", outputTargetWriteName, "PRIVATE", file=self.writestream)
 
         for includedDir in includeDirsArr:
-            print("\t${PROJECT_SOURCE_DIR}/", includedDir, sep="", file=self.writestream)
+            if includedDir[0] == '$':
+                print("\t", includedDir, sep="", file=self.writestream)
+            else:
+                print("\t${PROJECT_SOURCE_DIR}/", includedDir, sep="", file=self.writestream)
         print(")", file=self.writestream)
 
         # Set output directories for the target
@@ -93,9 +104,6 @@ class CMakeBuilder():
 
         print("\tRUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/", exeOutputDir, "/${CMAKE_BUILD_TYPE}", sep="", file=self.writestream)
         print(")", file=self.writestream)
-
-        # TODO: Handle printing imported library data
-        # TODO: Handle printing project-compiled library data
 
     def writeLibraryOutput(self, name, isStatic, sourcesArr, includeDirsArr, archiveOutputDir, libOutputDir):
         outputTargetWriteName = getOutputCmakeName(name)
@@ -110,20 +118,26 @@ class CMakeBuilder():
         # We can assume that the sourcesArray should have at least one name in it
         # since compilation always requires at least one file
         for sourceFileName in sourcesArr:
-            print("\t${PROJECT_SOURCE_DIR}/", sourceFileName, sep="", file=self.writestream)
-
+            if sourceFileName[0] == '$':
+                print("\t", sourceFileName, sep="", file=self.writestream)
+            else:
+                print("\t${PROJECT_SOURCE_DIR}/", sourceFileName, sep="", file=self.writestream)
         print(")", file=self.writestream)
 
         # Create the CMake executable
         print("\nadd_library(", outputTargetWriteName, libType,  inBraces(outputTargetSourcesName), ")", file=self.writestream)
 
+        print("\nset(", outputTargetWriteName + "_INCLUDE_DIRS", file=self.writestream)
+        for includedDir in includeDirsArr:
+            if includedDir[0] == '$':
+                print("\t", includedDir, sep="", file=self.writestream)
+            else:
+                print("\t${PROJECT_SOURCE_DIR}/", includedDir, sep="", file=self.writestream)
+        print(")", file=self.writestream)
 
         # Add include dirs to the executable
-        print("\ntarget_include_directories(", outputTargetWriteName, "PRIVATE", file=self.writestream)
+        print("\ntarget_include_directories(", outputTargetWriteName, "PRIVATE", inBraces(outputTargetWriteName + "_INCLUDE_DIRS"), ")", file=self.writestream)
 
-        for includedDir in includeDirsArr:
-            print("\t${PROJECT_SOURCE_DIR}/", includedDir, sep="", file=self.writestream)
-        print(")", file=self.writestream)
 
         # Set output directories for the target
         print("\nset_target_properties(", outputTargetWriteName, file=self.writestream)
@@ -132,8 +146,61 @@ class CMakeBuilder():
         print("\tLIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/", libOutputDir, "/${CMAKE_BUILD_TYPE}", sep="", file=self.writestream)
         print(")", file=self.writestream)
 
-        # TODO: Handle printing imported library data
-        # TODO: Handle printing project-compiled library data
+    # Problem: if one library has multiple lib_files, then they should be written as separate library entries.
+    # Ex: libname_0, libname_1
+    def writeImportedLib(self, name, isStatic, libFilesArr, includeDirsArr, headerFilesArr):
+        libType = "STATIC" if isStatic else "SHARED"
+
+        # Add these include dirs to a variable
+        print("\nset(", name+"_INCLUDE_DIRS", file=self.writestream)
+        for includeDirName in includeDirsArr:
+            print("\t" + inBraces("PROJECT_SOURCE_DIR") + "/" + includeDirName, file=self.writestream)
+        print(")", file=self.writestream)
+
+        # Add header files to a variable
+        print("\nset(", name+"_HEADER_FILES", file=self.writestream)
+        for headerFileName in headerFilesArr:
+            print("\t" + inBraces("PROJECT_SOURCE_DIR") + "/" + headerFileName, file=self.writestream)
+        print(")", file=self.writestream)
+
+        # Write a library for each file (so it is valid in cmake).
+        # Each file will be internally named as libname_0, libname_1, etc. by index.
+        for libFileIndex in range(0, len(libFilesArr)):
+            modifiedLibName = modifyNameWithIndex(name, libFileIndex)
+
+            # Add the imported library
+            print("\nadd_library(", modifiedLibName, libType, "IMPORTED", ")", file=self.writestream)
+
+            indexOfLastSlash = libFilesArr[libFileIndex].rfind('/', 0, len(libFilesArr[libFileIndex]) - 2)
+            pathPrefix = libFilesArr[libFileIndex][0:indexOfLastSlash + 1]
+            libFileName = libFilesArr[libFileIndex][indexOfLastSlash + 1 :].replace('/', '')
+
+            # If OS is Windows
+            self.writeIf("WIN32")
+
+            # Set the import location for the library
+            print("set_target_properties(", modifiedLibName, file=self.writestream)
+            print("\tPROPERTIES", file=self.writestream)
+            if isStatic:
+                print("\tIMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/", pathPrefix + "lib" + libFileName + ".a", sep="", file=self.writestream)
+            else:
+                print("\tIMPORTED_IMPLIB ${PROJECT_SOURCE_DIR}/", pathPrefix + "lib" + libFileName + ".dll.a", sep="", file=self.writestream)
+            print(")", file=self.writestream)
+
+            # Else if OS in UNIX (mainly linux or mac)
+            self.writeElseIf("UNIX")
+
+            # Set the import location for the library
+            print("set_target_properties(", modifiedLibName, file=self.writestream)
+            print("\tPROPERTIES", file=self.writestream)
+            if isStatic:
+                print("\tIMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/", pathPrefix + "lib" + libFileName + ".a", sep="", file=self.writestream)
+            else:
+                print("\tIMPORTED_IMPLIB ${PROJECT_SOURCE_DIR}/", pathPrefix + "lib" + libFileName + ".so", sep="", file=self.writestream)
+            print(")", file=self.writestream)
+
+            self.writeEndif()
+
 
     def writeBuildTarget(self, target, cFlags, cppFlags):
         targetVar = ""
@@ -178,10 +245,17 @@ class CMakeBuilder():
             print("\tset( CMAKE_BUILD_TYPE \"", targetName[0].upper() + targetName[1:].lower(), "\" )", sep="", file=self.writestream)
             self.writeEndif()
 
-    def writeLinkedLibs(self, outputNameLinkingTo, libNamesLinking):
+    # NOTE: When an imported library "name" has multiple 'lib_files' defined, make sure to pass each one as libname_0, libname_1, etc.
+    def writeLinkedLibs(self, outputNameLinkingTo, libNamesLinking, importedLibsObject):
         print("\ntarget_link_libraries(", getOutputCmakeName(outputNameLinkingTo), file=self.writestream)
         for libName in libNamesLinking:
-            print("\t", getOutputCmakeName(libName), file=self.writestream)
+            # Write each index-modified library name if libName is found in the imported libraries
+            if libName in importedLibsObject:
+                for index in range(0, len(importedLibsObject[libName]["lib_files"])):
+                    print("\t", modifyNameWithIndex(libName, index), file=self.writestream)
+            else:
+                print("\t", getOutputCmakeName(libName), file=self.writestream)
+
         print(")", file=self.writestream)
 
     def writeMessage(self, message, before=""):
