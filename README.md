@@ -203,4 +203,45 @@ Each attrubute defined in `link_libs` should have a name that exactly matches th
 When a library package is linked to an output item, all header files resolved from the library's *r_header_dirs* are added to the output item's source files in CMakeLists.txt. Then if the library is an imported lib, each lib_file is added to the output's list of libraries to link. Otherwise the output library target is added to the output item's list of libraries to link.
 
 ### Language Standards
-Both C and C++ language standards can be defined and limited. Multiple can be specified for selection in the CMake GUI.
+Both C and C++ language standards can be defined and limited. Multiple can be specified for selection in the CMake GUI. Note that currently only main versions are supported (such as C++ 11, 14, 17, etc. and C 90, 99, 11, etc.)
+
+#### Specifying C standards
+Allowed C standards are specified in the `"allowed_c_standards"` *(required)* attribute array. Each array item should be a string representing the C version.
+
+Each item in the *allowed_c_standards* array will be stored in CMake cache, and can be selected using a dropdown in the CMake GUI.
+
+**Example:**
+``` json
+"allowed_c_standards": [
+  "99",
+  "11"
+]
+```
+
+A default standard can also be specified in `"default_c_standard"` *(optional)*, however this is not required.
+
+**Example:**
+``` json
+"default_c_standard": "99"
+```
+
+#### Specifying C++ standards
+Allowed C++ standards are specified in the `"allowed_cpp_standards"` *(required)* attribute array. Each array item should be a string representing the C++ version.
+
+Each item in the *allowed_c_standards* array will be stored in CMake cache, and can be selected using a dropdown in the CMake GUI.
+
+**Example:**
+``` json
+"allowed_cpp_standards": [
+  "11",
+  "14",
+  "17
+]
+```
+
+A default standard can also be specified in `"default_cpp_standard"` *(optional)*, however this is not required.
+
+**Example:**
+``` json
+"default_cpp_standard": "11"
+```
