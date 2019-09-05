@@ -295,3 +295,10 @@ Each output target will be defined inside the `targets` object. Its attribute na
   ]
 }
 ```
+
+A default output target can also be specified using `"default_target"` *(optional)*. While this is not required, it is recommended since it allows the CMake GUI to load and cache the default compiler flag lists on initial config. This should be specified in the root object.
+
+**Example:**
+``` json
+"default_target": "debug"
+```
