@@ -135,12 +135,12 @@ Imported 'library' of static type. Should be defined as an attribute of `"import
 
 **Example:**
 ``` json
-"imported_static_lib_example": {
+"user_defined_static_package_name": {
   "type": "static",
   "root_dir": "dep/lib_example/lib",
   "lib_files": [
-    "myLibraryFile1",
-    "myLibraryFile2"
+    "myStaticLibraryFileName1",
+    "myStaticLibraryFileName2"
   ],
   "r_header_dirs": [
     "dep/lib_example/include"
@@ -164,12 +164,12 @@ Imported 'library' of shared type. Should be defined as an attribute of `"import
 
 **Example:**
 ``` json
-"imported_shared_lib_example": {
+"user_defined_shared_package_name": {
   "type": "shared",
   "root_dir": "dep/lib_example/lib",
   "lib_files": [
-    "myLibraryFile1",
-    "myLibraryFile2"
+    "mySharedLibraryFileName1",
+    "mySharedLibraryFileName2"
   ],
   "r_header_dirs": [
     "dep/lib_example/include"
@@ -181,7 +181,26 @@ Imported 'library' of shared type. Should be defined as an attribute of `"import
 ```
 
 ### Linking
-Both imported and program-generated libraries can be linked to output executables. Multiple libraries can be linked, and can be a mix of static/shared and imported/program-generated
+Both imported and program-generated libraries can be linked to output executables. Multiple libraries can be linked, and can be a mix of static/shared and imported/program-generated. Linking structure should be defined in the `"link_libs"` *(required)* attribute object. Output libraries should not link to themselves, as usual.
+
+**Example:**
+``` json
+"link_libs": {
+  "executable_output_1": [
+    "user_defined_shared_package_name"
+  ],
+  "static_output_2": [
+    "user_defined_shared_package_name",
+    "user_defined_static_package_name"
+  ]
+}
+```
+
+#### The Linking Structure
+Each attrubute defined in `link_libs` should have a name that exactly matches the name given to an output item defined in `output`. The attribute should be an array of 'package' names. Each name should exactly match either a library output item defined in *output*, or an imported 'package' defined in *imported_libs*.
+
+#### Linking behind the scenes
+When a library package is linked to an output item, all header files resolved from the library's *r_header_dirs* are added to the output item's source files in CMakeLists.txt. Then if the library is an imported lib, each lib_file is added to the output's list of libraries to link. Otherwise the output library target is added to the output item's list of libraries to link.
 
 ### Language Standards
 Both C and C++ language standards can be defined and limited. Multiple can be specified for selection in the CMake GUI.
