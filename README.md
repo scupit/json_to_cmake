@@ -262,3 +262,36 @@ The name of the CMake project. Should be defined in the `"project_name"` attribu
 ``` json
 "project_name": "MySuperAwesomeProject"
 ```
+
+### Output Targets
+Multiple output targets (such as *Debug* and *Release*) can be specified. These targets will be defined in the `"targets"` *(required)* attribute object. Language-specific compiler flags can also be defined. Compiler-specific flags for each target is a planned feature.
+
+**Example:**
+``` json
+"targets": {
+  "debug": { ... },
+  "release": { ... },
+  "some_other_configuration": { ... }
+}
+```
+
+#### Specifying a possible output target
+Each output target will be defined inside the `targets` object. Its attribute name represens its selectable name in the CMake GUI dropdown.
+
+##### Available Options
+* `c_flags` *(required)*: An array of flags to be passed to the C compiler. All flags will be passed to all compilers, and the dash is mandatory. (Compiler specific flags are a planned feature)
+* `cpp_flags` *(required)*: An array of flags to be passed to the C++ compiler. All flags will be passed to all compilers, and the dash is mandatory. (Compiler specific flags are a planned feature)
+
+**Example:**
+``` json
+"output_target_name": {
+  "c_flags": [
+    "-O2",
+    "-DNDEBUG"
+  ],
+  "cpp_flags": [
+    "-O3",
+    "-DNDEBUG"
+  ]
+}
+```
