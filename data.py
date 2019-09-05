@@ -3,9 +3,6 @@ import json
 from pathlib import Path
 import glob
 
-# TODO: Require each 'output' item to have a root_dir tag attribute. This will make
-# recursively writing CMakeLists.txt files much easier
-
 jsonFileName = "cmake_data.json"
 defCppStandard = "11"
 defCStandard = "99"
@@ -71,7 +68,6 @@ def getDirsRecursively(basePath, otherPathStrings):
 
     return set(fixFilePaths(basePath, dirList))
 
-
 # Returns true if the tag is found, else raises a KeyError.
 # Optional parentTag is the tag of the object that should contain the missing tag.
 # if possible and applicable it should be included for the sake of error message clarity.
@@ -95,41 +91,61 @@ class Data():
     def __init__(self, rootDir):
 
         if type(rootDir) is str:
-            p = Path(rootDir)
-            parsedJSON = json.load(io.open(str((p/jsonFileName).resolve())))
+            rootDirPathObject = Path(rootDir)
+            parsedJSON = json.load(io.open(str((rootDirPathObject/jsonFileName).resolve())))
         else:
             raise TypeError("Passed a non-string value into the Data(str) constructor. Item: ")
 
-        keys = parsedJSON.keys()
+        self.setMinCmakeVersion(parsedJSON)
+        self.setProjectName(parsedJSON)
+        self.setDefaultCppStandard(parsedJSON)
+        self.setDefaultCStandard(parsedJSON)
+        self.setAllowedCppStandards(parsedJSON)
+        self.setAllowedCStandards(parsedJSON)
 
-        # Check for min_cmake_version
+        self.setTargets(parsedJSON)
+        self.setTargetDefault(parsedJSON)
+
+        self.setOutput(parsedJSON, rootDirPathObject)
+        self.setImportedLibs(parsedJSON, rootDirPathObject)
+        self.setLinks(parsedJSON)
+
+    # Check for min_cmake_version
+    def setMinCmakeVersion(self, parsedJSON):
         if _hasTag(parsedJSON, "min_cmake_version"):
             self.cmake_tag_version = parsedJSON["min_cmake_version"]
 
-        # Check for project_name
+    # Check for project_name
+    def setProjectName(self, parsedJSON):
         if _hasTag(parsedJSON, "project_name"):
             self.project_name = parsedJSON["project_name"]
 
-        # Check for default_cpp_standard
+    # Check for default_cpp_standard
+    def setDefaultCppStandard(self, parsedJSON):
         if "default_cpp_standard" in parsedJSON:
             self.default_cpp_standard = parsedJSON["default_cpp_standard"]
         else:
             self.default_cpp_standard = ""
 
-        # Check for default_c_standard
+    # Check for default_c_standard
+    def setDefaultCStandard(self, parsedJSON):
         if "default_c_standard" in parsedJSON:
             self.default_c_standard = parsedJSON["default_c_standard"]
         else:
             self.default_c_standard = ""
 
-        # Check for allowed_cpp_standards
+    # Check for allowed_cpp_standards
+    def setAllowedCppStandards(self, parsedJSON):
         if _hasTag(parsedJSON, "allowed_cpp_standards"):
             self.allowed_cpp_standards = parsedJSON["allowed_cpp_standards"]
 
-        # Check for allowed_c_standards
+    # Check for allowed_c_standards
+    def setAllowedCStandards(self, parsedJSON):
         if _hasTag(parsedJSON, "allowed_c_standards"):
             self.allowed_c_standards = parsedJSON["allowed_c_standards"]
 
+    # Check for output "targets" such as 'debug' and 'release'
+    def setTargets(self, parsedJSON):
         if _hasTag(parsedJSON, "targets", why="Are you building a release binary? Or maybe a debug one? Add the 'targets' tag and add a build type to it."):
             self.targets = {}
 
@@ -151,14 +167,15 @@ class Data():
             # given flags or require different flag lists altogether if the flags are
             # different across (for) other compilers
 
-        # Check for optional default_target
+    # Check for optional default_target
+    def setTargetDefault(self, parsedJSON):
         if "default_target" in parsedJSON:
             self.default_target = parsedJSON["default_target"]
         else:
             self.default_target = ""
 
-
-        # Check for output
+    # Check for output items
+    def setOutput(self, parsedJSON, rootDirPathObject):
         if _hasTag(parsedJSON, "output"):
             # output = empty dict, for use later. (Makes changing values easier)
             self.output = {}
@@ -189,15 +206,15 @@ class Data():
 
                 # Check for r_source_dirs
                 if _hasTag(outputItem, "r_source_dirs", parentTag=keyName, why="These are the base directories to be recursively searched for source files. If you are only compiling the (optional) base file, still include this tag with an empty array."):
-                    self.output[keyName]["source_files"] += getFilesRecursively(p, outputItem["r_source_dirs"], allSourceTypes)
+                    self.output[keyName]["source_files"] += getFilesRecursively(rootDirPathObject, outputItem["r_source_dirs"], allSourceTypes)
 
                 # Check for r_header_dirs
                 if _hasTag(outputItem, "r_header_dirs", parentTag=keyName, why="Without header files, your files will not be able to include other files, and your program may not compile."):
-                    self.output[keyName]["source_files"] += getFilesRecursively(p, outputItem["r_header_dirs"], allHeaderTypes)
+                    self.output[keyName]["source_files"] += getFilesRecursively(rootDirPathObject, outputItem["r_header_dirs"], allHeaderTypes)
 
                 if _hasTag(outputItem, "r_include_dirs", parentTag=keyName, why="Without passing the include directories of your header files to the compiler, there is a good chance they may not be included."):
                     # Initialize the include_directories array in this output item as well
-                    self.output[keyName]["include_directories"] = list(getDirsRecursively(p, outputItem["r_include_dirs"]))
+                    self.output[keyName]["include_directories"] = list(getDirsRecursively(rootDirPathObject, outputItem["r_include_dirs"]))
 
                 if self.output[keyName]["type"].lower() == "executable":
                     # Only executable_output_dir is required
@@ -205,7 +222,6 @@ class Data():
                         self.output[keyName]["executable_output_dir"] = outputItem["executable_output_dir"]
                 else:
                     # Assumed to be a library, so both archive_output_dir and library_output_dir are required
-
                     # Check for archive_output_dir
                     if _hasTag(outputItem, "archive_output_dir", parentTag=keyName, why="Specifies the directory into which the library 'archive' files will be built. (Don't use a beginning /)"):
                         self.output[keyName]["archive_output_dir"] = outputItem["archive_output_dir"]
@@ -214,7 +230,8 @@ class Data():
                     if _hasTag(outputItem, "library_output_dir", parentTag=keyName, why="Specifies the directory into which the library files will be built. (Don't use a beginning /)"):
                         self.output[keyName]["library_output_dir"] = outputItem["library_output_dir"]
 
-        # TODO: Check for imported_libs
+    # Check for imported_libs
+    def setImportedLibs(self, parsedJSON, rootDirPathObject):
         self.imported_libs = {}
         if "imported_libs" in parsedJSON:
             importedLibItem = parsedJSON["imported_libs"]
@@ -238,14 +255,14 @@ class Data():
                         for libFileName in importedLibItem[libName]["lib_files"]:
                             self.imported_libs[libName]["lib_files"].append(str(fileBasePath/libFileName))
                         # Fix file paths so they can be correctly prepended with '${PROJECT_SOURCE_DIR}'
-                        self.imported_libs[libName]["lib_files"] = list(fixFilePaths(p, self.imported_libs[libName]["lib_files"]))
+                        self.imported_libs[libName]["lib_files"] = set(fixFilePaths(rootDirPathObject, self.imported_libs[libName]["lib_files"]))
 
                 if _hasTag(importedLibItem[libName], "r_include_dirs", parentTag=libName, why="An array of directories to recursively search for header files should be given here, so that header files needed on library import can be found. If for some reason you do not to import any header files for this project, please define this as an empty array."):
-                    self.imported_libs[libName]["include_directories"] = list(getDirsRecursively(p, importedLibItem[libName]["r_include_dirs"]))
-                    self.imported_libs[libName]["header_files"] = list(getFilesRecursively(p, importedLibItem[libName]["r_header_dirs"], allHeaderTypes))
+                    self.imported_libs[libName]["include_directories"] = set(getDirsRecursively(rootDirPathObject, importedLibItem[libName]["r_include_dirs"]))
+                    self.imported_libs[libName]["header_files"] = set(getFilesRecursively(rootDirPathObject, importedLibItem[libName]["r_header_dirs"], allHeaderTypes))
 
-
-        # Check for link_compiled
+    def setLinks(self, parsedJSON):
+        # Check for link_libs
         self.link_libs = {}
         if "link_libs" in parsedJSON:
 
@@ -260,7 +277,5 @@ class Data():
                     elif libName in parsedJSON["imported_libs"] and len(parsedJSON["imported_libs"][libName]["r_include_dirs"]) > 0:
                         self.output[outputName]["include_directories"].append("${" + libName + "_INCLUDE_DIRS}")
                         self.output[outputName]["source_files"].append("${" + libName + "_HEADER_FILES}")
-                    # elif len(parsedJSON["output"][libName]["r_include_dirs"]) > 0:
-                        # self.output[outputName]["include_directories"].append("${" + libName + "_INCLUDE_DIRS}")
 
             self.link_libs = parsedJSON["link_libs"]
