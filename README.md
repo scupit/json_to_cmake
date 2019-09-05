@@ -307,9 +307,9 @@ A default output target can also be specified using `"default_target"` *(optiona
 ```
 
 ## Planned features
-[ ] Compiler-specific flags per target
-[ ] Platform-specific imports!!
-[ ] Specification of single include folders
+- [ ] Compiler-specific flags per target
+- [ ] Platform-specific imports!!
+- [ ] Specification of single include folders
 
 ## Finished planned features
 :(
