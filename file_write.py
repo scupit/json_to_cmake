@@ -1,29 +1,12 @@
 import data
 import os
-
-def getOutputCmakeName(name):
-    return name.lower() + "_cmake_output"
-
-def getOutputSourcesName(name):
-    return name.upper() + "_SOURCES"
-
-def inBraces(string):
-    return "${" + string + "}"
-
-def isInBraces(string):
-    return string[0] == '$' and string[1] == '{' and string[len(string)-1] == '}'
-
-def modifyNameWithIndex(string, index):
-    return string + "_" + str(index)
-
+import HelperFunctions
+import HelperVariables
 
 class CMakeBuilder():
 
     def __init__(self, filepath):
         self.writestream = open(filepath, mode='w')
-
-    # def close(self):
-        # close(self.writestream)
 
     def writeNewlines(self, num=1):
         while num > 0:
@@ -64,11 +47,9 @@ class CMakeBuilder():
 
         self.writeMessage("Using C compiler standard -std=c${C_COMPILER_STANDARD}", before="\n")
 
-    # TODO: Add support for linked libraries and linked imported libraries. (Once support
-    # is added in the Data class)
     def writeExecutableOutput(self, name, sourcesArr, includeDirsArr, exeOutputDir):
-        outputTargetWriteName = getOutputCmakeName(name)
-        outputTargetSourcesName = getOutputSourcesName(name)
+        outputTargetWriteName = HelperFunctions.getOutputCmakeName(name)
+        outputTargetSourcesName = HelperFunctions.getOutputSourcesName(name)
 
         # Set CMake sources variable for this output
         # NOTE: This is not necessary for functionality, but will make
@@ -86,7 +67,7 @@ class CMakeBuilder():
         print(")", file=self.writestream)
 
         # Create the CMake executable
-        print("\nadd_executable(", outputTargetWriteName, inBraces(outputTargetSourcesName), ")", file=self.writestream)
+        print("\nadd_executable(", outputTargetWriteName, HelperFunctions.inBraces(outputTargetSourcesName), ")", file=self.writestream)
 
         # Add include dirs to the executable
         print("\ntarget_include_directories(", outputTargetWriteName, "PRIVATE", file=self.writestream)
@@ -106,8 +87,8 @@ class CMakeBuilder():
         print(")", file=self.writestream)
 
     def writeLibraryOutput(self, name, isStatic, sourcesArr, includeDirsArr, archiveOutputDir, libOutputDir):
-        outputTargetWriteName = getOutputCmakeName(name)
-        outputTargetSourcesName = getOutputSourcesName(name)
+        outputTargetWriteName = HelperFunctions.getOutputCmakeName(name)
+        outputTargetSourcesName = HelperFunctions.getOutputSourcesName(name)
         libType = "STATIC" if isStatic else "SHARED"
 
         # Set CMake sources variable for this output
@@ -125,9 +106,9 @@ class CMakeBuilder():
         print(")", file=self.writestream)
 
         # Create the CMake executable
-        print("\nadd_library(", outputTargetWriteName, libType,  inBraces(outputTargetSourcesName), ")", file=self.writestream)
+        print("\nadd_library(", outputTargetWriteName, libType, HelperFunctions.inBraces(outputTargetSourcesName), ")", file=self.writestream)
 
-        print("\nset(", outputTargetWriteName + "_INCLUDE_DIRS", file=self.writestream)
+        print("\nset(", outputTargetWriteName + HelperVariables.INCLUDE_DIRS_SUFFIX, file=self.writestream)
         for includedDir in includeDirsArr:
             if includedDir[0] == '$':
                 print("\t", includedDir, sep="", file=self.writestream)
@@ -136,8 +117,7 @@ class CMakeBuilder():
         print(")", file=self.writestream)
 
         # Add include dirs to the executable
-        print("\ntarget_include_directories(", outputTargetWriteName, "PRIVATE", inBraces(outputTargetWriteName + "_INCLUDE_DIRS"), ")", file=self.writestream)
-
+        print("\ntarget_include_directories(", outputTargetWriteName, "PRIVATE", HelperFunctions.inBraces(outputTargetWriteName + HelperVariables.INCLUDE_DIRS_SUFFIX), ")", file=self.writestream)
 
         # Set output directories for the target
         print("\nset_target_properties(", outputTargetWriteName, file=self.writestream)
@@ -152,21 +132,21 @@ class CMakeBuilder():
         libType = "STATIC" if isStatic else "SHARED"
 
         # Add these include dirs to a variable
-        print("\nset(", name+"_INCLUDE_DIRS", file=self.writestream)
+        print("\nset(", name + HelperVariables.INCLUDE_DIRS_SUFFIX, file=self.writestream)
         for includeDirName in includeDirsArr:
-            print("\t" + inBraces("PROJECT_SOURCE_DIR") + "/" + includeDirName, file=self.writestream)
+            print("\t" + HelperFunctions.inBraces("PROJECT_SOURCE_DIR") + "/" + includeDirName, file=self.writestream)
         print(")", file=self.writestream)
 
         # Add header files to a variable
         print("\nset(", name+"_HEADER_FILES", file=self.writestream)
         for headerFileName in headerFilesArr:
-            print("\t" + inBraces("PROJECT_SOURCE_DIR") + "/" + headerFileName, file=self.writestream)
+            print("\t" + HelperFunctions.inBraces("PROJECT_SOURCE_DIR") + "/" + headerFileName, file=self.writestream)
         print(")", file=self.writestream)
 
         # Write a library for each file (so it is valid in cmake).
         # Each file will be internally named as libname_0, libname_1, etc. by index.
         for libFileIndex in range(0, len(libFilesArr)):
-            modifiedLibName = modifyNameWithIndex(name, libFileIndex)
+            modifiedLibName = HelperFunctions.modifyNameWithIndex(name, libFileIndex)
 
             # Add the imported library
             print("\nadd_library(", modifiedLibName, libType, "IMPORTED", ")", file=self.writestream)
@@ -176,7 +156,7 @@ class CMakeBuilder():
             libFileName = libFilesArr[libFileIndex][indexOfLastSlash + 1 :].replace('/', '')
 
             # If OS is Windows
-            self.writeIf("WIN32")
+            self.writeIf(HelperVariables.WINDOWS_OS_NAME)
 
             # Set the import location for the library
             print("set_target_properties(", modifiedLibName, file=self.writestream)
@@ -188,7 +168,7 @@ class CMakeBuilder():
             print(")", file=self.writestream)
 
             # Else if OS in UNIX (mainly linux or mac)
-            self.writeElseIf("UNIX")
+            self.writeElseIf(HelperVariables.UNIX_OS_NAME)
 
             # Set the import location for the library
             print("set_target_properties(", modifiedLibName, file=self.writestream)
@@ -203,12 +183,7 @@ class CMakeBuilder():
 
 
     def writeBuildTarget(self, target, cFlags, cppFlags):
-        targetVar = ""
-        # TODO: handle scenario where an invalid target string is given
-        if target.lower() == "debug":
-            targetVar = "Debug"
-        elif target.lower() == "release":
-            targetVar = "Release"
+        targetVar = target[0].upper() + target[1:].lower()
 
         # In cmake file: do these things if the chosen build type is this one
         self.writeNewlines()
@@ -247,14 +222,14 @@ class CMakeBuilder():
 
     # NOTE: When an imported library "name" has multiple 'lib_files' defined, make sure to pass each one as libname_0, libname_1, etc.
     def writeLinkedLibs(self, outputNameLinkingTo, libNamesLinking, importedLibsObject):
-        print("\ntarget_link_libraries(", getOutputCmakeName(outputNameLinkingTo), file=self.writestream)
+        print("\ntarget_link_libraries(", HelperFunctions.getOutputCmakeName(outputNameLinkingTo), file=self.writestream)
         for libName in libNamesLinking:
             # Write each index-modified library name if libName is found in the imported libraries
             if libName in importedLibsObject:
                 for index in range(0, len(importedLibsObject[libName]["lib_files"])):
-                    print("\t", modifyNameWithIndex(libName, index), file=self.writestream)
+                    print("\t", HelperFunctions.modifyNameWithIndex(libName, index), file=self.writestream)
             else:
-                print("\t", getOutputCmakeName(libName), file=self.writestream)
+                print("\t", HelperFunctions.getOutputCmakeName(libName), file=self.writestream)
 
         print(")", file=self.writestream)
 
