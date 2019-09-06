@@ -11,6 +11,7 @@ def ifArgsDo(func):
 def main(args):
     try:
         write_organizer.writeCMakeFiles(args[1])
+        print("CMakeLists.txt file written successfully!")
     except FileNotFoundError as e:
         print("ERROR: JSON file not found in directory", args[1],"... make sure the file exists and is located in your project's root directory. Also make sure the directory argument given IS the root directory of you project")
         pass
