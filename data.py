@@ -213,7 +213,7 @@ class Data():
 
                 if _hasTag(outputItem, HelperVariables.R_INCLUDE_DIRS_TAGNAME, parentTag=keyName, why="Without passing the include directories of your header files to the compiler, there is a good chance they may not be included."):
                     # Initialize the include_directories array in this output item as well
-                    self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = set(getDirsRecursively(rootDirPathObject, outputItem[HelperVariables.R_INCLUDE_DIRS_TAGNAME]))
+                    self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(getDirsRecursively(rootDirPathObject, outputItem[HelperVariables.R_INCLUDE_DIRS_TAGNAME]))
 
                 if self.output[keyName][HelperVariables.TYPE_TAGNAME].lower() == HelperVariables.OUTPUT_TYPES["EXE"]:
                     # Only executable_output_dir is required
@@ -254,11 +254,11 @@ class Data():
                         for libFileName in importedLibItem[libName][HelperVariables.LIB_FILES_TAGNAME]:
                             self.imported_libs[libName][HelperVariables.LIB_FILES_TAGNAME].append(str(fileBasePath/libFileName))
                         # Fix file paths so they can be correctly prepended with '${PROJECT_SOURCE_DIR}'
-                        self.imported_libs[libName][HelperVariables.LIB_FILES_TAGNAME] = set(fixFilePaths(rootDirPathObject, self.imported_libs[libName][HelperVariables.LIB_FILES_TAGNAME]))
+                        self.imported_libs[libName][HelperVariables.LIB_FILES_TAGNAME] = list(fixFilePaths(rootDirPathObject, self.imported_libs[libName][HelperVariables.LIB_FILES_TAGNAME]))
 
                 if _hasTag(importedLibItem[libName], HelperVariables.R_INCLUDE_DIRS_TAGNAME, parentTag=libName, why="An array of directories to recursively search for header files should be given here, so that header files needed on library import can be found. If for some reason you do not to import any header files for this project, please define this as an empty array."):
-                    self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = set(getDirsRecursively(rootDirPathObject, importedLibItem[libName][HelperVariables.R_INCLUDE_DIRS_TAGNAME]))
-                    self.imported_libs[libName][HelperVariables.HEADER_FILES_TAGNAME] = set(getFilesRecursively(rootDirPathObject, importedLibItem[libName][HelperVariables.R_HEADER_DIRS_TAGNAME], allHeaderTypes))
+                    self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(getDirsRecursively(rootDirPathObject, importedLibItem[libName][HelperVariables.R_INCLUDE_DIRS_TAGNAME]))
+                    self.imported_libs[libName][HelperVariables.HEADER_FILES_TAGNAME] = list(getFilesRecursively(rootDirPathObject, importedLibItem[libName][HelperVariables.R_HEADER_DIRS_TAGNAME], allHeaderTypes))
 
     def setLinks(self, parsedJSON):
         # Check for link_libs

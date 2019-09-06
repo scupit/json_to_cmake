@@ -23,7 +23,7 @@ class CMakeBuilder():
         if not defaultCppStandard in allowedCppStandards or defaultCppStandard == "":
             defaultCppStandard = allowedCppStandards[0]
 
-        self.printToOwnStream("\nset( CXX_COMPILER_STANDARD \"", defaultCppStandard, "\" CACHE STRING \"C++ compiler standard year\")", sep="",  file=self.writestream)
+        self.printToOwnStream("\nset( CXX_COMPILER_STANDARD \"", defaultCppStandard, "\" CACHE STRING \"C++ compiler standard year\")", sep="")
         self.printToOwnStream("\nset_property( CACHE CXX_COMPILER_STANDARD PROPERTY STRINGS", end="")
 
         for standard in allowedCppStandards:
@@ -223,9 +223,9 @@ class CMakeBuilder():
             # Write each index-modified library name if libName is found in the imported libraries
             if libName in importedLibsObject:
                 for index in range(0, len(importedLibsObject[libName][HelperVariables.LIB_FILES_TAGNAME])):
-                    self.printToOwnStream("\t", HelperFunctions.modifyNameWithIndex(libName, index))
+                    self.printToOwnStream("\t", HelperFunctions.modifyNameWithIndex(libName, index), sep="")
             else:
-                self.printToOwnStream("\t", HelperFunctions.getOutputCmakeName(libName))
+                self.printToOwnStream("\t", HelperFunctions.getOutputCmakeName(libName), sep="")
         self.printToOwnStream(")")
 
     def writeMessage(self, message, before=""):
@@ -244,4 +244,4 @@ class CMakeBuilder():
         self.printToOwnStream("endif()")
 
     def printToOwnStream(self, *args, **kwargs):
-        self.printToOwnStream(args, kwargs, file=self.writestream)
+        print(*args, **kwargs, file=self.writestream)
