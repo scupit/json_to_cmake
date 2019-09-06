@@ -48,8 +48,9 @@ def fixWindowsPath(pathString):
 def fixFilePaths(basePath, arrayOfPathStrings):
     if str(basePath) != ".":
         # Remove the basePath argument data from each returned pathString
-        return map(lambda item : fixWindowsPath(item[item.find(str(basePath)) + len(str(basePath)) + 1:]), arrayOfPathStrings)
-    return list(map(lambda item : fixWindowsPath(item), arrayOfPathStrings))
+        # TODO: Refactor this lambda. 'item.find' should not have to be called twice.
+        return set(map(lambda item : fixWindowsPath(item[ (item.find(str(basePath)) + len(str(basePath)) + 1) if item.find(str(basePath)) >= 0 else 0:]), arrayOfPathStrings))
+    return set(map(lambda item : fixWindowsPath(item), arrayOfPathStrings))
 
 # Recursively get all files whose extensions match any of the ones in the 'fileExtensionTypes' array
 def getFilesRecursively(basePath, otherPathStrings, fileExtensionTypes):

@@ -150,6 +150,7 @@ class CMakeBuilder():
             indexOfLastSlash = libFilesArr[libFileIndex].rfind('/', 0, len(libFilesArr[libFileIndex]) - 2)
             pathPrefix = libFilesArr[libFileIndex][0:indexOfLastSlash + 1]
             libFileName = libFilesArr[libFileIndex][indexOfLastSlash + 1 :].replace('/', '')
+            print(libFilesArr[libFileIndex])
 
             # If OS is Windows
             self.writeIf(HelperVariables.WINDOWS_OS_NAME)
