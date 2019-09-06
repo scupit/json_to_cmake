@@ -179,11 +179,9 @@ class CMakeBuilder():
 
 
     def writeBuildTarget(self, target, cFlags, cppFlags):
-        targetVar = HelperFunctions.capFirstLowerRest(target)
-
-        # In cmake file: do these things if the chosen build type is this one
+        # Compiler flags are defined per build_target
         self.writeNewlines()
-        self.writeIf("${CMAKE_BUILD_TYPE} STREQUAL " + targetVar)
+        self.writeIf("${CMAKE_BUILD_TYPE} STREQUAL " + HelperFunctions.capFirstLowerRest(target))
 
         # C flag section
         self.printToOwnStream("\tset( C_FLAGS \"", end="")
@@ -191,6 +189,7 @@ class CMakeBuilder():
         for flag in cFlags:
             self.printToOwnStream(flag, end=" ")
         self.printToOwnStream("\" CACHE STRING \"C Compiler options\" )")
+        self.writeMessage("Using C compiler flags: ${C_FLAGS}")
 
         # CXX flag section
         self.printToOwnStream("\tset( CXX_FLAGS \"", end="")
@@ -198,6 +197,7 @@ class CMakeBuilder():
         for flag in cppFlags:
             self.printToOwnStream(flag, end=" ")
         self.printToOwnStream("\" CACHE STRING \"CXX Compiler options\" )")
+        self.writeMessage("Using CXX compiler flags: ${CXX_FLAGS}")
 
         self.writeMessage("Building project ${CMAKE_BUILD_TYPE} configuration", before="\t")
         self.writeEndif()
