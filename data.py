@@ -3,6 +3,9 @@ import json
 from pathlib import Path
 import glob
 
+import HelperFunctions
+import HelperVariables
+
 jsonFileName = "cmake_data.json"
 defCppStandard = "11"
 defCStandard = "99"
@@ -275,7 +278,7 @@ class Data():
                         raise KeyError("\"" + outputName + "\" tag in \"link_libs\" not found in \"output\" nor \"imported_libs\". Make sure your names match.")
                     # Since adding 'include directories' to an imported library makes no sense, add them to each output item that imports them.
                     elif libName in parsedJSON["imported_libs"] and len(parsedJSON["imported_libs"][libName]["r_include_dirs"]) > 0:
-                        self.output[outputName]["include_directories"].append("${" + libName + "_INCLUDE_DIRS}")
-                        self.output[outputName]["source_files"].append("${" + libName + "_HEADER_FILES}")
+                        self.output[outputName]["include_directories"].append( HelperFunctions.inBraces(libName + HelperVariables.INCLUDE_DIRS_SUFFIX) )
+                        self.output[outputName]["source_files"].append( HelperFunctions.inBraces(libName + HelperVariables.HEADER_FILES_SUFFIX) )
 
             self.link_libs = parsedJSON["link_libs"]

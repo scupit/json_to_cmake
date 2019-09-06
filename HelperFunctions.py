@@ -12,3 +12,6 @@ def isInBraces(string):
 
 def modifyNameWithIndex(string, index):
   return string + "_" + str(index)
+
+def capFirstLowerRest(string):
+  return string[0].upper() + string[1:].lower()
