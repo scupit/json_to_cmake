@@ -12,9 +12,9 @@ defCStandard = "99"
 
 allowedImportedLibTypeNames = [
     "shared",
-    "shared_lib",
+    HelperVariables.OUTPUT_TYPES["SHARED_LIB"],
     "static",
-    "static_lib"
+    HelperVariables.OUTPUT_TYPES["STATIC_LIB"]
 ]
 
 cppSourceFileTypes = [
@@ -215,7 +215,7 @@ class Data():
                     # Initialize the include_directories array in this output item as well
                     self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = set(getDirsRecursively(rootDirPathObject, outputItem[HelperVariables.R_INCLUDE_DIRS_TAGNAME]))
 
-                if self.output[keyName][HelperVariables.TYPE_TAGNAME].lower() == "executable":
+                if self.output[keyName][HelperVariables.TYPE_TAGNAME].lower() == HelperVariables.OUTPUT_TYPES["EXE"]:
                     # Only executable_output_dir is required
                     if _hasTag(outputItem, HelperVariables.EXE_OUTPUT_DIR_TAGNAME, parentTag=keyName, why="Specifies the directory into which the executable will be build. (Don't use a beginning /)"):
                         self.output[keyName][HelperVariables.EXE_OUTPUT_DIR_TAGNAME] = outputItem[HelperVariables.EXE_OUTPUT_DIR_TAGNAME]

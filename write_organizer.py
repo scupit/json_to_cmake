@@ -5,31 +5,34 @@ from file_write import CMakeBuilder
 import HelperFunctions
 import HelperVariables
 
+# Write CMake project version
 def writeProjectVersion(fileWriter, jsonDataObject):
     fileWriter.writeVersion(jsonDataObject.cmake_tag_version)
 
+# Write project name
 def writeProjectName(fileWriter, jsonDataObject):
     fileWriter.writeProjectName(jsonDataObject.project_name)
 
+# Write project output items
 def writeProjectOutputs(fileWriter, jsonDataObject):
     for outputNameKey in jsonDataObject.output:
-        if jsonDataObject.output[outputNameKey][HelperVariables.TYPE_TAGNAME] == "executable":
+        if jsonDataObject.output[outputNameKey][HelperVariables.TYPE_TAGNAME] == HelperVariables.OUTPUT_TYPES["EXE"]:
             fileWriter.writeExecutableOutput(outputNameKey, jsonDataObject.output[outputNameKey][HelperVariables.SOURCE_FILES_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.EXE_OUTPUT_DIR_TAGNAME])
-        elif jsonDataObject.output[outputNameKey][HelperVariables.TYPE_TAGNAME] == "static_lib":
+        elif jsonDataObject.output[outputNameKey][HelperVariables.TYPE_TAGNAME] == HelperVariables.OUTPUT_TYPES["STATIC_LIB"]:
             fileWriter.writeLibraryOutput(outputNameKey, True, jsonDataObject.output[outputNameKey][HelperVariables.SOURCE_FILES_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.ARCHIVE_OUTPUT_DIR_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.LIB_OUTPUT_DIR_TAGNAME])
-        elif jsonDataObject.output[outputNameKey][HelperVariables.TYPE_TAGNAME] == "shared_lib":
+        elif jsonDataObject.output[outputNameKey][HelperVariables.TYPE_TAGNAME] == HelperVariables.OUTPUT_TYPES["SHARED_LIB"]:
             # Can assume the output type is "shared_lib" at this point
             fileWriter.writeLibraryOutput(outputNameKey, False, jsonDataObject.output[outputNameKey][HelperVariables.SOURCE_FILES_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.ARCHIVE_OUTPUT_DIR_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.LIB_OUTPUT_DIR_TAGNAME])
         # else:
             # Raise some sort of 'invalid output type given' error. This code should never be reached due to type checking in the data class, but you never know.
 
+# Write imported_libs
 def writeProjectImportedLibs(fileWriter, jsonDataObject):
-    # Write imported_libs
     for importedLibName in jsonDataObject.imported_libs:
         fileWriter.writeImportedLib(importedLibName, jsonDataObject.imported_libs[importedLibName][HelperVariables.TYPE_TAGNAME] == "static", jsonDataObject.imported_libs[importedLibName][HelperVariables.LIB_FILES_TAGNAME], jsonDataObject.imported_libs[importedLibName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME], jsonDataObject.imported_libs[importedLibName][HelperVariables.HEADER_FILES_TAGNAME])
 
+# Write linked_libs
 def writeProjectLinks(fileWriter, jsonDataObject):
-    # Write linked_libs
     for outputName in jsonDataObject.link_libs:
         # This if statement might be unnecessary, since if no elements are
         # contained, shouldn't the number of keys be 0?
