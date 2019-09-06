@@ -1,7 +1,48 @@
+# CMake variable suffixes
 INCLUDE_DIRS_SUFFIX = "_INCLUDE_DIRS"
-HEADER_FILES_SUFFIX = '_HEADER_FILES'
+HEADER_FILES_SUFFIX = "_HEADER_FILES"
 
+# CMake operation system specifiers
 WINDOWS_OS_NAME = "WIN32"
 MAC_OS_NAME = "APPLE"
 LINUX_OS_NAME = "UNIX AND NOT APPLE"
 UNIX_OS_NAME = "UNIX"
+
+# cmake_data.json tag strings
+# --------------------------------------------------
+CMAKE_MIN_VERSION_TAGNAME = "min_cmake_version"
+PROJECT_NAME_TAGNAME = "project_name"
+
+OUTPUT_TAGNAME = "output"
+TYPE_TAGNAME = "type"
+SOURCE_FILES_TAGNAME = "source_files"
+BASE_FILE_TAGNAME = "base_file"
+
+R_HEADER_DIRS_TAGNAME = "r_header_dirs"
+R_INCLUDE_DIRS_TAGNAME = "r_include_dirs"
+R_SOURCE_DIRS_TAGNAME = "r_source_dirs"
+
+INCLUDE_DIRECTORIES_TAGNAME = "include_directories"
+
+EXE_OUTPUT_DIR_TAGNAME = "executable_output_dir"
+ARCHIVE_OUTPUT_DIR_TAGNAME = "archive_output_dir"
+LIB_OUTPUT_DIR_TAGNAME = "library_output_dir"
+
+IMPORTED_LIBS_TAGNAME = "imported_libs"
+ROOT_DIR_TAGNAME = "root_dir"
+LIB_FILES_TAGNAME = "lib_files"
+HEADER_FILES_TAGNAME = "header_files"
+
+LINK_LIBS_TAGNAME = "link_libs"
+
+ALLOWED_C_STANDARDS_TAGNAME = "allowed_c_standards"
+ALLOWED_CPP_STANDARDS_TAGNAME = "allowed_cpp_standards"
+DEFAULT_C_STANDARD_TAGNAME = "default_c_standard"
+DEFAULT_CPP_STANDARD_TAGNAME = "default_cpp_standard"
+
+TARGETS_TAGNAME = "targets"
+CPP_FLAGS_TAGNAME = "cpp_flags"
+C_FLAGS_TAGNAME = "c_flags"
+DEFAULT_TARGET_TAGNAME = "default_target"
+
+# --------------------------------------------------

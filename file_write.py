@@ -222,7 +222,7 @@ class CMakeBuilder():
         for libName in libNamesLinking:
             # Write each index-modified library name if libName is found in the imported libraries
             if libName in importedLibsObject:
-                for index in range(0, len(importedLibsObject[libName]["lib_files"])):
+                for index in range(0, len(importedLibsObject[libName][HelperVariables.LIB_FILES_TAGNAME])):
                     self.printToOwnStream("\t", HelperFunctions.modifyNameWithIndex(libName, index))
             else:
                 self.printToOwnStream("\t", HelperFunctions.getOutputCmakeName(libName))
