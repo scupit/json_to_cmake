@@ -26,6 +26,11 @@ R_HEADER_DIRS_TAGNAME = "r_header_dirs"
 R_INCLUDE_DIRS_TAGNAME = "r_include_dirs"
 R_SOURCE_DIRS_TAGNAME = "r_source_dirs"
 
+# cmake_data.json individual inclusion tags
+IND_HEADER_DIRS_TAGNAME = "header_dirs"
+IND_INCLUDE_DIRS_TAGNAME = "include_dirs"
+IND_SOURCE_DIRS_TAGNAME = "source_dirs"
+
 # Include directories tag
 INCLUDE_DIRECTORIES_TAGNAME = "include_directories"
 
