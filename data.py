@@ -216,6 +216,11 @@ class Data():
                     # Initialize the include_directories array in this output item as well
                     self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(getDirsRecursively(rootDirPathObject, outputItem[HelperVariables.R_INCLUDE_DIRS_TAGNAME]))
 
+                    if HelperVariables.IND_INCLUDE_DIRS_TAGNAME in outputItem:
+                        self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] += map(lambda relPathString : str(rootDirPathObject/relPathString), outputItem[HelperVariables.IND_INCLUDE_DIRS_TAGNAME])
+                        # Make sure no duplicates were added
+                        self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(dict.fromkeys(self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
+
                 if self.output[keyName][HelperVariables.TYPE_TAGNAME].lower() == HelperVariables.OUTPUT_TYPES["EXE"]:
                     # Only executable_output_dir is required
                     if _hasTag(outputItem, HelperVariables.EXE_OUTPUT_DIR_TAGNAME, parentTag=keyName, why="Specifies the directory into which the executable will be build. (Don't use a beginning /)"):
