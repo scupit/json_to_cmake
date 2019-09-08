@@ -316,10 +316,6 @@ A default output target can also be specified using `"default_target"` *(optiona
 ## Planned features
 - [ ] Compiler-specific flags per target
 - [ ] Platform-specific imports!!
-- [ ] Specification of single include folders
 
 ## Finished planned features
-:(
-
-## Other Plans
-* Refactoring!! I Really need to make this code more organized now that I know what needs to happen.
+- [x] Specification of individual, non-recursive include directories
