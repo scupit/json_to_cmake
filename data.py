@@ -264,6 +264,13 @@ class Data():
 
                 if _hasTag(importedLibItem[libName], HelperVariables.R_INCLUDE_DIRS_TAGNAME, parentTag=libName, why="An array of directories to recursively search for header files should be given here, so that header files needed on library import can be found. If for some reason you do not to import any header files for this project, please define this as an empty array."):
                     self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(getDirsRecursively(rootDirPathObject, importedLibItem[libName][HelperVariables.R_INCLUDE_DIRS_TAGNAME]))
+
+                    if HelperVariables.IND_INCLUDE_DIRS_TAGNAME in importedLibItem[libName]:
+                        self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] += map(lambda relPathString : str(rootDirPathObject/relPathString), importedLibItem[libName][HelperVariables.IND_INCLUDE_DIRS_TAGNAME])
+                        # Make sure no duplicates were added
+                        self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(dict.fromkeys(self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
+
+                if _hasTag(importedLibItem[libName], HelperVariables.R_HEADER_DIRS_TAGNAME, parentTag=libName, why="An array of directories to recursively search for header files should be given here, so that header files needed on library import can be found. If for some reason you do not to import any header files for this project, please define this as an empty array."):
                     self.imported_libs[libName][HelperVariables.HEADER_FILES_TAGNAME] = list(getFilesRecursively(rootDirPathObject, importedLibItem[libName][HelperVariables.R_HEADER_DIRS_TAGNAME], allHeaderTypes))
 
     def setLinks(self, parsedJSON):
@@ -271,16 +278,19 @@ class Data():
         self.link_libs = {}
         if HelperVariables.LINK_LIBS_TAGNAME in parsedJSON:
 
-            outputNameKeys = parsedJSON[HelperVariables.LINK_LIBS_TAGNAME].keys()
-            for outputName in outputNameKeys:
+            for outputName in parsedJSON[HelperVariables.LINK_LIBS_TAGNAME]:
                 if not outputName in parsedJSON[HelperVariables.OUTPUT_TAGNAME]:
                     raise KeyError("\"" + outputName + "\" tag in \"link_libs\" not found in \"output\". Make sure your names match.")
                 for libName in parsedJSON[HelperVariables.LINK_LIBS_TAGNAME][outputName]:
                     if not libName in parsedJSON[HelperVariables.OUTPUT_TAGNAME] and not libName in parsedJSON[HelperVariables.IMPORTED_LIBS_TAGNAME]:
                         raise KeyError("\"" + outputName + "\" tag in \"link_libs\" not found in \"output\" nor \"imported_libs\". Make sure your names match.")
                     # Since adding 'include directories' to an imported library makes no sense, add them to each output item that imports them.
-                    elif libName in parsedJSON[HelperVariables.IMPORTED_LIBS_TAGNAME] and len(parsedJSON[HelperVariables.IMPORTED_LIBS_TAGNAME][libName][HelperVariables.R_INCLUDE_DIRS_TAGNAME]) > 0:
+                    elif libName in parsedJSON[HelperVariables.IMPORTED_LIBS_TAGNAME] and (len(parsedJSON[HelperVariables.IMPORTED_LIBS_TAGNAME][libName][HelperVariables.R_INCLUDE_DIRS_TAGNAME]) > 0 or HelperVariables.IND_INCLUDE_DIRS_TAGNAME in parsedJSON[HelperVariables.IMPORTED_LIBS_TAGNAME][libName] and len(parsedJSON[HelperVariables.IMPORTED_LIBS_TAGNAME][libName][HelperVariables.IND_INCLUDE_DIRS_TAGNAME]) > 0):
                         self.output[outputName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME].append( HelperFunctions.inBraces(libName + HelperVariables.INCLUDE_DIRS_SUFFIX) )
                         self.output[outputName][HelperVariables.SOURCE_FILES_TAGNAME].append( HelperFunctions.inBraces(libName + HelperVariables.HEADER_FILES_SUFFIX) )
+                    elif len(parsedJSON[HelperVariables.OUTPUT_TAGNAME][libName][HelperVariables.R_INCLUDE_DIRS_TAGNAME]) > 0 or HelperVariables.IND_INCLUDE_DIRS_TAGNAME in parsedJSON[HelperVariables.OUTPUT_TAGNAME][libName] and len(parsedJSON[HelperVariables.OUTPUT_TAGNAME][libName][HelperVariables.IND_INCLUDE_DIRS_TAGNAME] > 0):
+                        if parsedJSON[HelperVariables.OUTPUT_TAGNAME][outputName][HelperVariables.TYPE_TAGNAME] == HelperVariables.OUTPUT_TYPES["EXE"]:
+                            self.output[outputName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME].append( HelperFunctions.inBraces(libName + HelperVariables.INCLUDE_DIRS_SUFFIX) )
+                            self.output[outputName][HelperVariables.SOURCE_FILES_TAGNAME].append( HelperFunctions.inBraces(libName + HelperVariables.HEADER_FILES_SUFFIX) )
 
             self.link_libs = parsedJSON[HelperVariables.LINK_LIBS_TAGNAME]

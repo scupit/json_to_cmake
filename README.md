@@ -37,7 +37,8 @@ Defines an executable output type. Should be defined as an attribute object insi
 * `executable_output_dir` *(required)*: Specify the location of this executable output *in the build directory*. Note that the specified directory name will be prefixed with the output target name ('Debug', 'Release', etc.).
 * `r_source_dirs` *(required)*: An array of root directories for which source files (.c, .cpp, .cxx, etc.) will be searched. All source files located in the directories (and their subdirectories) specified here will be compiled into the executable.
 * `r_header_dirs` *(required)*: An array of root directories for which header files (.h, .hpp, .hxx, etc.) will be searched.  All header files located in the directories (and their subdirectories) specified here will be compiled into the executable.
-* `r_include_dirs` *(required)*: An array of root directories (expands to their subdirectories as well) which the compiler will use as 'root' directories for file inclusion. For example, instead of including *include/otherfolder/NoiceFile.hpp*, adding "include" r_include_dirs will allow you to just include "NoiceFile.hpp". Handy feature, but could cause confusion in larger projects. This attribute will likely be replaced by something non-recursive in the future.
+* `r_include_dirs` *(required)*: An array of root directories (expands to their subdirectories as well) which the compiler will use as 'root' directories for file inclusion. For example, instead of including *include/otherfolder/NoiceFile.hpp*, adding "include" r_include_dirs will allow you to just include "NoiceFile.hpp". Handy feature, but could cause confusion in larger projects.
+* `include_dirs` *(optional)*: An array of root directories for the compiler to look in. Similar to *r_include_dirs*, just not recursive.
 
 **Example:**
 ``` json
@@ -65,7 +66,8 @@ Defines a static library output type. Should be defined as an attribute object i
 * `archive_output_dir` *(required)*: Specify the location of the archive file output *in the build directory*. Note that the specified directory name will be prefixed with the output target name ('Debug', 'Release', etc.).
 * `r_source_dirs` *(required)*: An array of root directories for which source files (.c, .cpp, .cxx, etc.) will be searched. All source files located in the directories (and their subdirectories) specified here will be compiled into the library.
 * `r_header_dirs` *(required)*: An array of root directories for which header files (.h, .hpp, .hxx, etc.) will be searched.  All header files located in the directories (and their subdirectories) specified here will be compiled into the library.
-* `r_include_dirs` *(required)*: An array of root directories (expands to their subdirectories as well) which the compiler will use as 'root' directories for file inclusion. For example, instead of including *include/otherfolder/NoiceFile.hpp*, adding "include" r_include_dirs will allow you to just include "NoiceFile.hpp". Handy feature, but could cause confusion in larger projects. This attribute will likely be replaced by something non-recursive in the future.
+* `r_include_dirs` *(required)*: An array of root directories (expands to their subdirectories as well) which the compiler will use as 'root' directories for file inclusion. For example, instead of including *include/otherfolder/NoiceFile.hpp*, adding "include" r_include_dirs will allow you to just include "NoiceFile.hpp". Handy feature, but could cause confusion in larger projects.
+* `include_dirs` *(optional)*: An array of root directories for the compiler to look in. Similar to *r_include_dirs*, just not recursive.
 
 **Example:**
 ``` json
@@ -93,7 +95,8 @@ Defines a shared library output type. Should be defined as an attribute object i
 * `archive_output_dir` *(required)*: Specify the location of the archive file output *in the build directory*. Note that the specified directory name will be prefixed with the output target name ('Debug', 'Release', etc.).
 * `r_source_dirs` *(required)*: An array of root directories for which source files (.c, .cpp, .cxx, etc.) will be searched. All source files located in the directories (and their subdirectories) specified here will be compiled into the library.
 * `r_header_dirs` *(required)*: An array of root directories for which header files (.h, .hpp, .hxx, etc.) will be searched.  All header files located in the directories (and their subdirectories) specified here will be compiled into the library.
-* `r_include_dirs` *(required)*: An array of root directories (expands to their subdirectories as well) which the compiler will use as 'root' directories for file inclusion. For example, instead of including *include/otherfolder/NoiceFile.hpp*, adding "include" r_include_dirs will allow you to just include "NoiceFile.hpp". Handy feature, but could cause confusion in larger projects. This attribute will likely be replaced by something non-recursive in the future.
+* `r_include_dirs` *(required)*: An array of root directories (expands to their subdirectories as well) which the compiler will use as 'root' directories for file inclusion. For example, instead of including *include/otherfolder/NoiceFile.hpp*, adding "include" r_include_dirs will allow you to just include "NoiceFile.hpp". Handy feature, but could cause confusion in larger projects.
+* `include_dirs` *(optional)*: An array of root directories for the compiler to look in. Similar to *r_include_dirs*, just not recursive.
 
 **Example:**
 ``` json
@@ -135,6 +138,7 @@ Imported 'library' of static type. Should be defined as an attribute of `"import
 * `lib_files` *(required)*: An array of file names to use from the root_dir directory. Multiple can be specified, but make sure they are all static library files. **Do not** include the 'lib' prefix or file extensions. This will be done automatically, and will make cross-platform inclusion simpler.
 * `r_header_dirs` *(required)*: An array of root directories for which header files (.h, .hpp, .hxx, etc.) will be searched. All header files located in the directories (and their subdirectories) specified here will be included in the sources of any output items that include this package.
 * `r_include_dirs` *(required)*: An array of root directories (expands to their subdirectories as well) which the compiler will use as 'root' directories for file inclusion. For example, instead of including *include/otherfolder/NoiceFile.hpp*, adding "include" r_include_dirs will allow you to just include "NoiceFile.hpp". Handy feature, but could cause confusion in larger projects. This attribute will likely be replaced by something non-recursive in the future.
+* `include_dirs` *(optional)*: An array of root directories for the compiler to look in. Similar to *r_include_dirs*, just not recursive.
 
 **Example:**
 ``` json
@@ -164,6 +168,7 @@ Imported 'library' of shared type. Should be defined as an attribute of `"import
 * `lib_files` *(required)*: An array of file names to use from the root_dir directory. Multiple can be specified, but make sure they are all shared library files. **Do not** include the 'lib' prefix or file extensions. This will be done automatically, and will make cross-platform inclusion simpler.
 * `r_header_dirs` *(required)*: An array of root directories for which header files (.h, .hpp, .hxx, etc.) will be searched. All header files located in the directories (and their subdirectories) specified here will be included in the sources of any output items that include this package.
 * `r_include_dirs` *(required)*: An array of root directories (expands to their subdirectories as well) which the compiler will use as 'root' directories for file inclusion. For example, instead of including *include/otherfolder/NoiceFile.hpp*, adding "include" r_include_dirs will allow you to just include "NoiceFile.hpp". Handy feature, but could cause confusion in larger projects. This attribute will likely be replaced by something non-recursive in the future.
+* `include_dirs` *(optional)*: An array of root directories for the compiler to look in. Similar to *r_include_dirs*, just not recursive.
 
 **Example:**
 ``` json
@@ -203,7 +208,9 @@ Both imported and program-generated libraries can be linked to output executable
 Each attrubute defined in `link_libs` should have a name that exactly matches the name given to an output item defined in `output`. The attribute should be an array of 'package' names. Each name should exactly match either a library output item defined in *output*, or an imported 'package' defined in *imported_libs*.
 
 #### Linking behind the scenes
-When a library package is linked to an output item, all header files resolved from the library's *r_header_dirs* are added to the output item's source files in CMakeLists.txt. Then if the library is an imported lib, each lib_file is added to the output's list of libraries to link. Otherwise the output library target is added to the output item's list of libraries to link.
+When a library package is linked to an output item, all header files resolved from the library's *r_header_dirs*, as well as include direcroties, are added to the output item's source files in CMakeLists.txt. Then if the library is an imported lib, each lib_file is added to the output's list of libraries to link.
+
+**NOTE:** When linking an output library to another output library, header files and include dirs are not automatically added to the target library due to a possible recursion problem. Therefore when linking an output library to another output library, you should manually add the necessary header directories and include directories to your *cmake_data.json* configuration.
 
 ### Language Standards
 Both C and C++ language standards can be defined and limited. Multiple can be specified for selection in the CMake GUI. Note that currently only main versions are supported (such as C++ 11, 14, 17, etc. and C 90, 99, 11, etc.)

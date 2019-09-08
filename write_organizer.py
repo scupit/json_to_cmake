@@ -74,8 +74,8 @@ def writeCMakeFiles(rootDir):
 
         writeProjectVersion(fileWriter, jsonDataObject)
         writeProjectName(fileWriter, jsonDataObject)
-        writeProjectOutputs(fileWriter, jsonDataObject)
         writeProjectImportedLibs(fileWriter, jsonDataObject)
+        writeProjectOutputs(fileWriter, jsonDataObject)
         writeProjectLinks(fileWriter, jsonDataObject)
         writeProjectCStandards(fileWriter, jsonDataObject)
         writeProjectCppStandards(fileWriter, jsonDataObject)
