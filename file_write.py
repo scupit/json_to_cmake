@@ -24,26 +24,26 @@ class CMakeBuilder():
             defaultCppStandard = allowedCppStandards[0]
 
         self.printToOwnStream("\nset( CXX_COMPILER_STANDARD \"", defaultCppStandard, "\" CACHE STRING \"C++ compiler standard year\")", sep="")
-        self.printToOwnStream("\nset_property( CACHE CXX_COMPILER_STANDARD PROPERTY STRINGS", end="")
+        self.printToOwnStream("set_property( CACHE CXX_COMPILER_STANDARD PROPERTY STRINGS ", end="")
 
         for standard in allowedCppStandards:
-            self.printToOwnStream(" \"", standard, "\"", sep="", end="")
+            self.printToOwnStream("\"", standard, "\" ", sep="", end="")
         self.printToOwnStream(")")
 
-        self.writeMessage("Using CXX compiler standard -std=c++${CXX_COMPILER_STANDARD}", before="\n")
+        self.writeMessage("Using CXX compiler standard -std=c++${CXX_COMPILER_STANDARD}")
 
     def writeCStandards(self, allowedCStandards, defaultCStandard = ""):
         if not defaultCStandard in allowedCStandards or defaultCStandard == "":
             defaultCStandard = allowedCStandards[0]
 
         self.printToOwnStream("\nset( C_COMPILER_STANDARD \"", defaultCStandard, "\" CACHE STRING \"C compiler standard year\")", sep="")
-        self.printToOwnStream("\nset_property( CACHE C_COMPILER_STANDARD PROPERTY STRINGS", end="")
+        self.printToOwnStream("set_property( CACHE C_COMPILER_STANDARD PROPERTY STRINGS ", end="")
 
         for standard in allowedCStandards:
-            self.printToOwnStream(" \"", standard, "\"", sep="", end="")
+            self.printToOwnStream("\"", standard, "\" ", sep="", end="")
         self.printToOwnStream(")")
 
-        self.writeMessage("Using C compiler standard -std=c${C_COMPILER_STANDARD}", before="\n")
+        self.writeMessage("Using C compiler standard -std=c${C_COMPILER_STANDARD}")
 
     def writeExecutableOutput(self, name, sourcesArr, includeDirsArr, exeOutputDir):
         outputTargetWriteName = HelperFunctions.getOutputCmakeName(name)
@@ -189,7 +189,8 @@ class CMakeBuilder():
         for flag in cFlags:
             self.printToOwnStream(flag, end=" ")
         self.printToOwnStream("\" CACHE STRING \"C Compiler options\" )")
-        self.writeMessage("Using C compiler flags: ${C_FLAGS}")
+        self.writeMessage("Using C compiler flags: ${C_FLAGS}", before="\t")
+        self.writeNewlines(1)
 
         # CXX flag section
         self.printToOwnStream("\tset( CXX_FLAGS \"", end="")
@@ -197,7 +198,8 @@ class CMakeBuilder():
         for flag in cppFlags:
             self.printToOwnStream(flag, end=" ")
         self.printToOwnStream("\" CACHE STRING \"CXX Compiler options\" )")
-        self.writeMessage("Using CXX compiler flags: ${CXX_FLAGS}")
+        self.writeMessage("Using CXX compiler flags: ${CXX_FLAGS}", before="\t")
+        self.writeNewlines(1)
 
         self.writeMessage("Building project ${CMAKE_BUILD_TYPE} configuration", before="\t")
         self.writeEndif()
