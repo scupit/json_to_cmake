@@ -316,6 +316,12 @@ A default output target can also be specified using `"default_target"` *(optiona
 ## Planned features
 - [ ] Compiler-specific flags per target
 - [ ] Platform-specific imports!!
+- [ ] Generate comments in the CMakeLists.txt file
 
 ## Finished planned features
 - [x] Specification of individual, non-recursive include directories
+
+## Misc. TODOS
+- [ ] Refactor data into classes
+- [ ] Improve error handling, and do it right
+- [ ] Add a script to create precompiled headers
