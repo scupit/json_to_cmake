@@ -221,6 +221,9 @@ class Data():
                         # Make sure no duplicates were added
                         self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(dict.fromkeys(self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
 
+                    # Fix file paths
+                    self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(fixFilePaths(rootDirPathObject, self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
+
                 if self.output[keyName][HelperVariables.TYPE_TAGNAME].lower() == HelperVariables.OUTPUT_TYPES["EXE"]:
                     # Only executable_output_dir is required
                     if _hasTag(outputItem, HelperVariables.EXE_OUTPUT_DIR_TAGNAME, parentTag=keyName, why="Specifies the directory into which the executable will be build. (Don't use a beginning /)"):
@@ -269,6 +272,9 @@ class Data():
                         self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] += map(lambda relPathString : str(rootDirPathObject/relPathString), importedLibItem[libName][HelperVariables.IND_INCLUDE_DIRS_TAGNAME])
                         # Make sure no duplicates were added
                         self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(dict.fromkeys(self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
+
+                    # Fix file paths
+                    self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(fixFilePaths(rootDirPathObject, self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
 
                 if _hasTag(importedLibItem[libName], HelperVariables.R_HEADER_DIRS_TAGNAME, parentTag=libName, why="An array of directories to recursively search for header files should be given here, so that header files needed on library import can be found. If for some reason you do not to import any header files for this project, please define this as an empty array."):
                     self.imported_libs[libName][HelperVariables.HEADER_FILES_TAGNAME] = list(getFilesRecursively(rootDirPathObject, importedLibItem[libName][HelperVariables.R_HEADER_DIRS_TAGNAME], allHeaderTypes))
