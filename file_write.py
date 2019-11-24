@@ -13,6 +13,13 @@ class CMakeBuilder():
             self.printToOwnStream()
             num -= 1
 
+    def writeWaterMark(self):
+        self.printToOwnStream("#####################################################################################")
+        self.printToOwnStream("# This CMakeLists.txt file was generated using Skylar Cupit's json_to_cmake tool.   #")
+        self.printToOwnStream("# Github: https://github.com/scupit/json_to_cmake                                   #")
+        self.printToOwnStream("#####################################################################################")
+        self.writeNewlines()
+
     def writeVersion(self, version):
         self.printToOwnStream("cmake_minimum_required( VERSION", version, ")")
 

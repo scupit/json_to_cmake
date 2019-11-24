@@ -72,6 +72,7 @@ def writeCMakeFiles(rootDir):
             raise e
         fileWriter = CMakeBuilder(rootDir + "/CMakeLists.txt")
 
+        fileWriter.writeWaterMark()
         writeProjectVersion(fileWriter, jsonDataObject)
         writeProjectName(fileWriter, jsonDataObject)
         writeProjectImportedLibs(fileWriter, jsonDataObject)
