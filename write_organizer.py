@@ -16,13 +16,14 @@ def writeProjectName(fileWriter, jsonDataObject):
 # Write project output items
 def writeProjectOutputs(fileWriter, jsonDataObject):
     for outputNameKey in jsonDataObject.output:
-        if jsonDataObject.output[outputNameKey][HelperVariables.TYPE_TAGNAME] == HelperVariables.OUTPUT_TYPES["EXE"]:
-            fileWriter.writeExecutableOutput(outputNameKey, jsonDataObject.output[outputNameKey][HelperVariables.SOURCE_FILES_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.EXE_OUTPUT_DIR_TAGNAME])
-        elif jsonDataObject.output[outputNameKey][HelperVariables.TYPE_TAGNAME] == HelperVariables.OUTPUT_TYPES["STATIC_LIB"]:
-            fileWriter.writeLibraryOutput(outputNameKey, True, jsonDataObject.output[outputNameKey][HelperVariables.SOURCE_FILES_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.ARCHIVE_OUTPUT_DIR_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.LIB_OUTPUT_DIR_TAGNAME])
-        elif jsonDataObject.output[outputNameKey][HelperVariables.TYPE_TAGNAME] == HelperVariables.OUTPUT_TYPES["SHARED_LIB"]:
+        outputItem = jsonDataObject.output[outputNameKey]
+        if outputItem[HelperVariables.TYPE_TAGNAME] == HelperVariables.OUTPUT_TYPES["EXE"]:
+            fileWriter.writeExecutableOutput(outputNameKey, outputItem[HelperVariables.SOURCE_FILES_TAGNAME], outputItem[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME], outputItem[HelperVariables.EXE_OUTPUT_DIR_TAGNAME])
+        elif outputItem[HelperVariables.TYPE_TAGNAME] == HelperVariables.OUTPUT_TYPES["STATIC_LIB"]:
+            fileWriter.writeLibraryOutput(outputNameKey, True, outputItem[HelperVariables.SOURCE_FILES_TAGNAME], outputItem[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME], outputItem[HelperVariables.ARCHIVE_OUTPUT_DIR_TAGNAME], outputItem[HelperVariables.LIB_OUTPUT_DIR_TAGNAME])
+        elif outputItem[HelperVariables.TYPE_TAGNAME] == HelperVariables.OUTPUT_TYPES["SHARED_LIB"]:
             # Can assume the output type is "shared_lib" at this point
-            fileWriter.writeLibraryOutput(outputNameKey, False, jsonDataObject.output[outputNameKey][HelperVariables.SOURCE_FILES_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.ARCHIVE_OUTPUT_DIR_TAGNAME], jsonDataObject.output[outputNameKey][HelperVariables.LIB_OUTPUT_DIR_TAGNAME])
+            fileWriter.writeLibraryOutput(outputNameKey, False, outputItem[HelperVariables.SOURCE_FILES_TAGNAME], outputItem[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME], outputItem[HelperVariables.ARCHIVE_OUTPUT_DIR_TAGNAME], outputItem[HelperVariables.LIB_OUTPUT_DIR_TAGNAME])
         # else:
             # Raise some sort of 'invalid output type given' error. This code should never be reached due to type checking in the data class, but you never know.
 

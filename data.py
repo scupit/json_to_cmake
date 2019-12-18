@@ -192,51 +192,52 @@ class Data():
             for keyName in outputItemKeys:
                 self.output[keyName] = {}
                 outputItem = parsedJSON[HelperVariables.OUTPUT_TAGNAME][keyName]
+                selfOutput = self.output[keyName]
 
                 # Check output item for type
                 if _hasTag(outputItem, HelperVariables.TYPE_TAGNAME, parentTag=keyName, why="Without a type, we do not know what to compile your code into. Options: \"executable\", \"static_lib\", \"shared_lib\""):
-                    self.output[keyName][HelperVariables.TYPE_TAGNAME] = outputItem[HelperVariables.TYPE_TAGNAME]
+                    selfOutput[HelperVariables.TYPE_TAGNAME] = outputItem[HelperVariables.TYPE_TAGNAME]
 
                 # Define the source_files array for this outputitem
-                self.output[keyName][HelperVariables.SOURCE_FILES_TAGNAME] = []
+                selfOutput[HelperVariables.SOURCE_FILES_TAGNAME] = []
 
                 # Check for base_file (this tag is optional)
                 if HelperVariables.BASE_FILE_TAGNAME in outputItem:
-                    self.output[keyName][HelperVariables.SOURCE_FILES_TAGNAME].append(outputItem[HelperVariables.BASE_FILE_TAGNAME])
+                    selfOutput[HelperVariables.SOURCE_FILES_TAGNAME].append(outputItem[HelperVariables.BASE_FILE_TAGNAME])
 
                 # Check for r_source_dirs
                 if _hasTag(outputItem, HelperVariables.R_SOURCE_DIRS_TAGNAME, parentTag=keyName, why="These are the base directories to be recursively searched for source files. If you are only compiling the (optional) base file, still include this tag with an empty array."):
-                    self.output[keyName][HelperVariables.SOURCE_FILES_TAGNAME] += getFilesRecursively(rootDirPathObject, outputItem[HelperVariables.R_SOURCE_DIRS_TAGNAME], allSourceTypes)
+                    selfOutput[HelperVariables.SOURCE_FILES_TAGNAME] += getFilesRecursively(rootDirPathObject, outputItem[HelperVariables.R_SOURCE_DIRS_TAGNAME], allSourceTypes)
 
                 # Check for r_header_dirs
                 if _hasTag(outputItem, HelperVariables.R_HEADER_DIRS_TAGNAME, parentTag=keyName, why="Without header files, your files will not be able to include other files, and your program may not compile."):
-                    self.output[keyName][HelperVariables.SOURCE_FILES_TAGNAME] += getFilesRecursively(rootDirPathObject, outputItem[HelperVariables.R_HEADER_DIRS_TAGNAME], allHeaderTypes)
+                    selfOutput[HelperVariables.SOURCE_FILES_TAGNAME] += getFilesRecursively(rootDirPathObject, outputItem[HelperVariables.R_HEADER_DIRS_TAGNAME], allHeaderTypes)
 
                 if _hasTag(outputItem, HelperVariables.R_INCLUDE_DIRS_TAGNAME, parentTag=keyName, why="Without passing the include directories of your header files to the compiler, there is a good chance they may not be included."):
                     # Initialize the include_directories array in this output item as well
-                    self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(getDirsRecursively(rootDirPathObject, outputItem[HelperVariables.R_INCLUDE_DIRS_TAGNAME]))
+                    selfOutput[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(getDirsRecursively(rootDirPathObject, outputItem[HelperVariables.R_INCLUDE_DIRS_TAGNAME]))
 
                     if HelperVariables.IND_INCLUDE_DIRS_TAGNAME in outputItem:
-                        self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] += map(lambda relPathString : str(rootDirPathObject/relPathString), outputItem[HelperVariables.IND_INCLUDE_DIRS_TAGNAME])
+                        selfOutput[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] += map(lambda relPathString : str(rootDirPathObject/relPathString), outputItem[HelperVariables.IND_INCLUDE_DIRS_TAGNAME])
                         # Make sure no duplicates were added
-                        self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(dict.fromkeys(self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
+                        selfOutput[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(dict.fromkeys(selfOutput[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
 
                     # Fix file paths
-                    self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(fixFilePaths(rootDirPathObject, self.output[keyName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
+                    selfOutput[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(fixFilePaths(rootDirPathObject, selfOutput[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
 
-                if self.output[keyName][HelperVariables.TYPE_TAGNAME].lower() == HelperVariables.OUTPUT_TYPES["EXE"]:
+                if selfOutput[HelperVariables.TYPE_TAGNAME].lower() == HelperVariables.OUTPUT_TYPES["EXE"]:
                     # Only executable_output_dir is required
                     if _hasTag(outputItem, HelperVariables.EXE_OUTPUT_DIR_TAGNAME, parentTag=keyName, why="Specifies the directory into which the executable will be build. (Don't use a beginning /)"):
-                        self.output[keyName][HelperVariables.EXE_OUTPUT_DIR_TAGNAME] = outputItem[HelperVariables.EXE_OUTPUT_DIR_TAGNAME]
+                        selfOutput[HelperVariables.EXE_OUTPUT_DIR_TAGNAME] = outputItem[HelperVariables.EXE_OUTPUT_DIR_TAGNAME]
                 else:
                     # Assumed to be a library, so both archive_output_dir and library_output_dir are required
                     # Check for archive_output_dir
                     if _hasTag(outputItem, HelperVariables.ARCHIVE_OUTPUT_DIR_TAGNAME, parentTag=keyName, why="Specifies the directory into which the library 'archive' files will be built. (Don't use a beginning /)"):
-                        self.output[keyName][HelperVariables.ARCHIVE_OUTPUT_DIR_TAGNAME] = outputItem[HelperVariables.ARCHIVE_OUTPUT_DIR_TAGNAME]
+                        selfOutput[HelperVariables.ARCHIVE_OUTPUT_DIR_TAGNAME] = outputItem[HelperVariables.ARCHIVE_OUTPUT_DIR_TAGNAME]
 
                     # Check for library_output_dir
                     if _hasTag(outputItem, HelperVariables.LIB_OUTPUT_DIR_TAGNAME, parentTag=keyName, why="Specifies the directory into which the library files will be built. (Don't use a beginning /)"):
-                        self.output[keyName][HelperVariables.LIB_OUTPUT_DIR_TAGNAME] = outputItem[HelperVariables.LIB_OUTPUT_DIR_TAGNAME]
+                        selfOutput[HelperVariables.LIB_OUTPUT_DIR_TAGNAME] = outputItem[HelperVariables.LIB_OUTPUT_DIR_TAGNAME]
 
     # Check for imported_libs
     def setImportedLibs(self, parsedJSON, rootDirPathObject):
@@ -244,40 +245,42 @@ class Data():
         if HelperVariables.IMPORTED_LIBS_TAGNAME in parsedJSON:
             importedLibItem = parsedJSON[HelperVariables.IMPORTED_LIBS_TAGNAME]
 
-            libNameKeys = importedLibItem
-            for libName in libNameKeys:
+            for libName in importedLibItem:
                 self.imported_libs[libName] = {}
 
-                if _hasTag(importedLibItem[libName], HelperVariables.TYPE_TAGNAME, parentTag=libName, why="An imported lib type must be specified, otherwise the compiler may try to link it as an incorrect type by default."):
-                    if not importedLibItem[libName][HelperVariables.TYPE_TAGNAME] in allowedImportedLibTypeNames:
+                fileImportedLib = importedLibItem[libName]
+                selfImportedLib = self.imported_libs[libName]
+
+                if _hasTag(fileImportedLib, HelperVariables.TYPE_TAGNAME, parentTag=libName, why="An imported lib type must be specified, otherwise the compiler may try to link it as an incorrect type by default."):
+                    if not fileImportedLib[HelperVariables.TYPE_TAGNAME] in allowedImportedLibTypeNames:
                         raise KeyError("Invalid imported lib type defined in \"" + libName + "\"")
                     # Set the imported lib type
-                    self.imported_libs[libName][HelperVariables.TYPE_TAGNAME] = importedLibItem[libName][HelperVariables.TYPE_TAGNAME]
+                    selfImportedLib[HelperVariables.TYPE_TAGNAME] = fileImportedLib[HelperVariables.TYPE_TAGNAME]
 
-                if _hasTag(importedLibItem[libName], HelperVariables.ROOT_DIR_TAGNAME, parentTag=libName, why="A root directory should be defined so that library files can easily be found."):
+                if _hasTag(fileImportedLib, HelperVariables.ROOT_DIR_TAGNAME, parentTag=libName, why="A root directory should be defined so that library files can easily be found."):
                     # Initialize the base path object for these files
-                    fileBasePath = Path(importedLibItem[libName][HelperVariables.ROOT_DIR_TAGNAME])
+                    fileBasePath = Path(fileImportedLib[HelperVariables.ROOT_DIR_TAGNAME])
 
-                    if _hasTag(importedLibItem[libName], HelperVariables.LIB_FILES_TAGNAME, parentTag=libName, why="Imported library file names must be given, otherwise no libraries will be imported. Please add at least one lib name to import."):
-                        self.imported_libs[libName][HelperVariables.LIB_FILES_TAGNAME] = []
-                        for libFileName in importedLibItem[libName][HelperVariables.LIB_FILES_TAGNAME]:
-                            self.imported_libs[libName][HelperVariables.LIB_FILES_TAGNAME].append(str(fileBasePath/libFileName))
+                    if _hasTag(fileImportedLib, HelperVariables.LIB_FILES_TAGNAME, parentTag=libName, why="Imported library file names must be given, otherwise no libraries will be imported. Please add at least one lib name to import."):
+                        selfImportedLib[HelperVariables.LIB_FILES_TAGNAME] = []
+                        for libFileName in fileImportedLib[HelperVariables.LIB_FILES_TAGNAME]:
+                            selfImportedLib[HelperVariables.LIB_FILES_TAGNAME].append(str(fileBasePath/libFileName))
                         # Fix file paths so they can be correctly prepended with '${PROJECT_SOURCE_DIR}'
-                        self.imported_libs[libName][HelperVariables.LIB_FILES_TAGNAME] = list(fixFilePaths(rootDirPathObject, self.imported_libs[libName][HelperVariables.LIB_FILES_TAGNAME]))
+                        selfImportedLib[HelperVariables.LIB_FILES_TAGNAME] = list(fixFilePaths(rootDirPathObject, selfImportedLib[HelperVariables.LIB_FILES_TAGNAME]))
 
-                if _hasTag(importedLibItem[libName], HelperVariables.R_INCLUDE_DIRS_TAGNAME, parentTag=libName, why="An array of directories to recursively search for header files should be given here, so that header files needed on library import can be found. If for some reason you do not to import any header files for this project, please define this as an empty array."):
-                    self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(getDirsRecursively(rootDirPathObject, importedLibItem[libName][HelperVariables.R_INCLUDE_DIRS_TAGNAME]))
+                if _hasTag(fileImportedLib, HelperVariables.R_INCLUDE_DIRS_TAGNAME, parentTag=libName, why="An array of directories to recursively search for header files should be given here, so that header files needed on library import can be found. If for some reason you do not to import any header files for this project, please define this as an empty array."):
+                    selfImportedLib[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(getDirsRecursively(rootDirPathObject, fileImportedLib[HelperVariables.R_INCLUDE_DIRS_TAGNAME]))
 
-                    if HelperVariables.IND_INCLUDE_DIRS_TAGNAME in importedLibItem[libName]:
-                        self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] += map(lambda relPathString : str(rootDirPathObject/relPathString), importedLibItem[libName][HelperVariables.IND_INCLUDE_DIRS_TAGNAME])
+                    if HelperVariables.IND_INCLUDE_DIRS_TAGNAME in fileImportedLib:
+                        selfImportedLib[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] += map(lambda relPathString : str(rootDirPathObject/relPathString), fileImportedLib[HelperVariables.IND_INCLUDE_DIRS_TAGNAME])
                         # Make sure no duplicates were added
-                        self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(dict.fromkeys(self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
+                        selfImportedLib[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(dict.fromkeys(selfImportedLib[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
 
                     # Fix file paths
-                    self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(fixFilePaths(rootDirPathObject, self.imported_libs[libName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
+                    selfImportedLib[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME] = list(fixFilePaths(rootDirPathObject, selfImportedLib[HelperVariables.INCLUDE_DIRECTORIES_TAGNAME]))
 
-                if _hasTag(importedLibItem[libName], HelperVariables.R_HEADER_DIRS_TAGNAME, parentTag=libName, why="An array of directories to recursively search for header files should be given here, so that header files needed on library import can be found. If for some reason you do not to import any header files for this project, please define this as an empty array."):
-                    self.imported_libs[libName][HelperVariables.HEADER_FILES_TAGNAME] = list(getFilesRecursively(rootDirPathObject, importedLibItem[libName][HelperVariables.R_HEADER_DIRS_TAGNAME], allHeaderTypes))
+                if _hasTag(fileImportedLib, HelperVariables.R_HEADER_DIRS_TAGNAME, parentTag=libName, why="An array of directories to recursively search for header files should be given here, so that header files needed on library import can be found. If for some reason you do not to import any header files for this project, please define this as an empty array."):
+                    selfImportedLib[HelperVariables.HEADER_FILES_TAGNAME] = list(getFilesRecursively(rootDirPathObject, fileImportedLib[HelperVariables.R_HEADER_DIRS_TAGNAME], allHeaderTypes))
 
     def setLinks(self, parsedJSON):
         # Check for link_libs
