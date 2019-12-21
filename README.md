@@ -317,6 +317,8 @@ A default output target can also be specified using `"default_target"` *(optiona
 - [ ] Compiler-specific flags per target
 - [ ] Platform-specific imports!!
 - [ ] Generate comments in the CMakeLists.txt file
+- [ ] Allow imported libs to be pulled from github
+- [ ] Link to libraries output from a separate project (using its cmake_data.json)
 
 ## Finished planned features
 - [x] Specification of individual, non-recursive include directories
