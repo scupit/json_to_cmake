@@ -7,7 +7,8 @@ import HelperVariables
 
 # Write CMake project version
 def writeProjectVersion(fileWriter, jsonDataObject):
-    fileWriter.writeVersion(jsonDataObject.cmake_tag_version)
+    # fileWriter.writeVersion(jsonDataObject.cmake_tag_version)
+    fileWriter.writeVersion("3.12")
 
 # Write project name
 def writeProjectName(fileWriter, jsonDataObject):

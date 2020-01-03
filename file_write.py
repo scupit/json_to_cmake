@@ -30,27 +30,27 @@ class CMakeBuilder():
         if not defaultCppStandard in allowedCppStandards or defaultCppStandard == "":
             defaultCppStandard = allowedCppStandards[0]
 
-        self.printToOwnStream("\nset( CXX_COMPILER_STANDARD \"", defaultCppStandard, "\" CACHE STRING \"C++ compiler standard year\")", sep="")
-        self.printToOwnStream("set_property( CACHE CXX_COMPILER_STANDARD PROPERTY STRINGS ", end="")
+        self.printToOwnStream("\nset( CMAKE_CXX_STANDARD \"", defaultCppStandard, "\" CACHE STRING \"C++ compiler standard year\")", sep="")
+        self.printToOwnStream("set_property( CACHE CMAKE_CXX_STANDARD PROPERTY STRINGS ", end="")
 
         for standard in allowedCppStandards:
             self.printToOwnStream("\"", standard, "\" ", sep="", end="")
         self.printToOwnStream(")")
 
-        self.writeMessage("Using CXX compiler standard -std=c++${CXX_COMPILER_STANDARD}")
+        self.writeMessage("Using CXX compiler standard -std=c++${CMAKE_CXX_STANDARD}")
 
     def writeCStandards(self, allowedCStandards, defaultCStandard = ""):
         if not defaultCStandard in allowedCStandards or defaultCStandard == "":
             defaultCStandard = allowedCStandards[0]
 
-        self.printToOwnStream("\nset( C_COMPILER_STANDARD \"", defaultCStandard, "\" CACHE STRING \"C compiler standard year\")", sep="")
-        self.printToOwnStream("set_property( CACHE C_COMPILER_STANDARD PROPERTY STRINGS ", end="")
+        self.printToOwnStream("\nset( CMAKE_C_STANDARD \"", defaultCStandard, "\" CACHE STRING \"C compiler standard year\")", sep="")
+        self.printToOwnStream("set_property( CACHE CMAKE_C_STANDARD PROPERTY STRINGS ", end="")
 
         for standard in allowedCStandards:
             self.printToOwnStream("\"", standard, "\" ", sep="", end="")
         self.printToOwnStream(")")
 
-        self.writeMessage("Using C compiler standard -std=c${C_COMPILER_STANDARD}")
+        self.writeMessage("Using C compiler standard -std=c${CMAKE_C_STANDARD}")
 
     def writeExecutableOutput(self, name, sourcesArr, includeDirsArr, exeOutputDir):
         outputTargetWriteName = HelperFunctions.getOutputCmakeName(name)

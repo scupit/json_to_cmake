@@ -96,7 +96,7 @@ class Data():
         else:
             raise TypeError("Passed a non-string value into the Data(str) constructor. Item: ")
 
-        self.setMinCmakeVersion(parsedJSON)
+        # self.setMinCmakeVersion(parsedJSON)
         self.setProjectName(parsedJSON)
         self.setDefaultCppStandard(parsedJSON)
         self.setDefaultCStandard(parsedJSON)
@@ -110,10 +110,10 @@ class Data():
         self.setImportedLibs(parsedJSON, rootDirPathObject)
         self.setLinks(parsedJSON)
 
-    # Check for min_cmake_version
-    def setMinCmakeVersion(self, parsedJSON):
-        if _hasTag(parsedJSON, HelperVariables.CMAKE_MIN_VERSION_TAGNAME):
-            self.cmake_tag_version = parsedJSON[HelperVariables.CMAKE_MIN_VERSION_TAGNAME]
+    # # Check for min_cmake_version
+    # def setMinCmakeVersion(self, parsedJSON):
+    #     if _hasTag(parsedJSON, HelperVariables.CMAKE_MIN_VERSION_TAGNAME):
+    #         self.cmake_tag_version = parsedJSON[HelperVariables.CMAKE_MIN_VERSION_TAGNAME]
 
     # Check for project_name
     def setProjectName(self, parsedJSON):
