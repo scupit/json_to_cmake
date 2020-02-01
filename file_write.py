@@ -160,7 +160,7 @@ class CMakeBuilder():
             # the actual library path
             self.printToOwnStream("\nfind_library(", modifiedLibName)
             self.printToOwnStream("\tNAMES", libFileName)
-            self.printToOwnStream("\tPATHS", HelperFunctions.inBraces("PROJECT_SOURCE_DIR") + pathPrefix)
+            self.printToOwnStream("\tPATHS", HelperFunctions.inBraces("PROJECT_SOURCE_DIR") + '/' + pathPrefix)
             self.printToOwnStream(")")
 
     def writeBuildTarget(self, target, cFlags, cppFlags):
