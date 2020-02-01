@@ -30,27 +30,27 @@ class CMakeBuilder():
         if not defaultCppStandard in allowedCppStandards or defaultCppStandard == "":
             defaultCppStandard = allowedCppStandards[0]
 
-        self.printToOwnStream("\nset( CXX_COMPILER_STANDARD \"", defaultCppStandard, "\" CACHE STRING \"C++ compiler standard year\")", sep="")
-        self.printToOwnStream("set_property( CACHE CXX_COMPILER_STANDARD PROPERTY STRINGS ", end="")
+        self.printToOwnStream("\nset( CMAKE_CXX_STANDARD \"", defaultCppStandard, "\" CACHE STRING \"C++ compiler standard year\")", sep="")
+        self.printToOwnStream("set_property( CACHE CMAKE_CXX_STANDARD PROPERTY STRINGS ", end="")
 
         for standard in allowedCppStandards:
             self.printToOwnStream("\"", standard, "\" ", sep="", end="")
         self.printToOwnStream(")")
 
-        self.writeMessage("Using CXX compiler standard -std=c++${CXX_COMPILER_STANDARD}")
+        self.writeMessage("Using CXX compiler standard -std=c++${CMAKE_CXX_STANDARD}")
 
     def writeCStandards(self, allowedCStandards, defaultCStandard = ""):
         if not defaultCStandard in allowedCStandards or defaultCStandard == "":
             defaultCStandard = allowedCStandards[0]
 
-        self.printToOwnStream("\nset( C_COMPILER_STANDARD \"", defaultCStandard, "\" CACHE STRING \"C compiler standard year\")", sep="")
-        self.printToOwnStream("set_property( CACHE C_COMPILER_STANDARD PROPERTY STRINGS ", end="")
+        self.printToOwnStream("\nset( CMAKE_C_STANDARD \"", defaultCStandard, "\" CACHE STRING \"C compiler standard year\")", sep="")
+        self.printToOwnStream("set_property( CACHE CMAKE_C_STANDARD PROPERTY STRINGS ", end="")
 
         for standard in allowedCStandards:
             self.printToOwnStream("\"", standard, "\" ", sep="", end="")
         self.printToOwnStream(")")
 
-        self.writeMessage("Using C compiler standard -std=c${C_COMPILER_STANDARD}")
+        self.writeMessage("Using C compiler standard -std=c${CMAKE_C_STANDARD}")
 
     def writeExecutableOutput(self, name, sourcesArr, includeDirsArr, exeOutputDir):
         outputTargetWriteName = HelperFunctions.getOutputCmakeName(name)
@@ -131,8 +131,7 @@ class CMakeBuilder():
 
     # Problem: if one library has multiple lib_files, then they should be written as separate library entries.
     # Ex: libname_0, libname_1
-    def writeImportedLib(self, name, isStatic, libFilesArr, includeDirsArr, headerFilesArr):
-        libType = "STATIC" if isStatic else "SHARED"
+    def writeImportedLib(self, name, libFilesArr, includeDirsArr, headerFilesArr):
 
         # Add these include dirs to a variable
         self.printToOwnStream("\nset(", name + HelperVariables.INCLUDE_DIRS_SUFFIX)
@@ -151,39 +150,18 @@ class CMakeBuilder():
         for libFileIndex in range(0, len(libFilesArr)):
             modifiedLibName = HelperFunctions.modifyNameWithIndex(name, libFileIndex)
 
-            # Add the imported library
-            self.printToOwnStream("\nadd_library(", modifiedLibName, libType, "IMPORTED", ")")
-
             indexOfLastSlash = libFilesArr[libFileIndex].rfind('/', 0, len(libFilesArr[libFileIndex]) - 2)
-            pathPrefix = libFilesArr[libFileIndex][0:indexOfLastSlash + 1]
+            pathPrefix = libFilesArr[libFileIndex][0:indexOfLastSlash]
             libFileName = libFilesArr[libFileIndex][indexOfLastSlash + 1 :].replace('/', '')
 
-            # If OS is Windows
-            self.writeIf(HelperVariables.WINDOWS_OS_NAME)
-
-            # Set the import location for the library
-            self.printToOwnStream("set_target_properties(", modifiedLibName)
-            self.printToOwnStream("\tPROPERTIES")
-            if isStatic:
-                self.printToOwnStream("\tIMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/", pathPrefix + "lib" + libFileName + ".a", sep="")
-            else:
-                self.printToOwnStream("\tIMPORTED_IMPLIB ${PROJECT_SOURCE_DIR}/", pathPrefix + "lib" + libFileName + ".dll.a", sep="")
+            # Find the imported library
+            # NOTE: Finding a library stores the library path (if found) as a string in the variable,
+            # so when linking this find library variable should be put in brackets in order to get
+            # the actual library path
+            self.printToOwnStream("\nfind_library(", modifiedLibName)
+            self.printToOwnStream("\tNAMES", libFileName)
+            self.printToOwnStream("\tPATHS", HelperFunctions.inBraces("PROJECT_SOURCE_DIR") + '/' + pathPrefix)
             self.printToOwnStream(")")
-
-            # Else if OS in UNIX (mainly linux or mac)
-            self.writeElseIf(HelperVariables.UNIX_OS_NAME)
-
-            # Set the import location for the library
-            self.printToOwnStream("set_target_properties(", modifiedLibName)
-            self.printToOwnStream("\tPROPERTIES")
-            if isStatic:
-                self.printToOwnStream("\tIMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/", pathPrefix + "lib" + libFileName + ".a", sep="")
-            else:
-                self.printToOwnStream("\tIMPORTED_IMPLIB ${PROJECT_SOURCE_DIR}/", pathPrefix + "lib" + libFileName + ".so", sep="")
-            self.printToOwnStream(")")
-
-            self.writeEndif()
-
 
     def writeBuildTarget(self, target, cFlags, cppFlags):
         # Compiler flags are defined per build_target
@@ -195,7 +173,7 @@ class CMakeBuilder():
 
         for flag in cFlags:
             self.printToOwnStream(flag, end=" ")
-        self.printToOwnStream("\" CACHE STRING \"C Compiler options\" )")
+        self.printToOwnStream("\")")
         self.writeMessage("Using C compiler flags: ${C_FLAGS}", before="\t")
         self.writeNewlines(1)
 
@@ -204,7 +182,7 @@ class CMakeBuilder():
 
         for flag in cppFlags:
             self.printToOwnStream(flag, end=" ")
-        self.printToOwnStream("\" CACHE STRING \"CXX Compiler options\" )")
+        self.printToOwnStream("\")")
         self.writeMessage("Using CXX compiler flags: ${CXX_FLAGS}", before="\t")
         self.writeNewlines(1)
 
@@ -232,7 +210,7 @@ class CMakeBuilder():
             # Write each index-modified library name if libName is found in the imported libraries
             if libName in importedLibsObject:
                 for index in range(0, len(importedLibsObject[libName][HelperVariables.LIB_FILES_TAGNAME])):
-                    self.printToOwnStream("\t", HelperFunctions.modifyNameWithIndex(libName, index), sep="")
+                    self.printToOwnStream("\t", HelperFunctions.inBraces(HelperFunctions.modifyNameWithIndex(libName, index)), sep="")
             else:
                 self.printToOwnStream("\t", HelperFunctions.getOutputCmakeName(libName), sep="")
         self.printToOwnStream(")")
