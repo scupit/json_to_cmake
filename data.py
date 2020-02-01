@@ -251,12 +251,6 @@ class Data():
                 fileImportedLib = importedLibItem[libName]
                 selfImportedLib = self.imported_libs[libName]
 
-                if _hasTag(fileImportedLib, HelperVariables.TYPE_TAGNAME, parentTag=libName, why="An imported lib type must be specified, otherwise the compiler may try to link it as an incorrect type by default."):
-                    if not fileImportedLib[HelperVariables.TYPE_TAGNAME] in allowedImportedLibTypeNames:
-                        raise KeyError("Invalid imported lib type defined in \"" + libName + "\"")
-                    # Set the imported lib type
-                    selfImportedLib[HelperVariables.TYPE_TAGNAME] = fileImportedLib[HelperVariables.TYPE_TAGNAME]
-
                 if _hasTag(fileImportedLib, HelperVariables.ROOT_DIR_TAGNAME, parentTag=libName, why="A root directory should be defined so that library files can easily be found."):
                     # Initialize the base path object for these files
                     fileBasePath = Path(fileImportedLib[HelperVariables.ROOT_DIR_TAGNAME])

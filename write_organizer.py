@@ -31,7 +31,7 @@ def writeProjectOutputs(fileWriter, jsonDataObject):
 # Write imported_libs
 def writeProjectImportedLibs(fileWriter, jsonDataObject):
     for importedLibName in jsonDataObject.imported_libs:
-        fileWriter.writeImportedLib(importedLibName, jsonDataObject.imported_libs[importedLibName][HelperVariables.TYPE_TAGNAME] == "static", jsonDataObject.imported_libs[importedLibName][HelperVariables.LIB_FILES_TAGNAME], jsonDataObject.imported_libs[importedLibName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME], jsonDataObject.imported_libs[importedLibName][HelperVariables.HEADER_FILES_TAGNAME])
+        fileWriter.writeImportedLib(importedLibName, jsonDataObject.imported_libs[importedLibName][HelperVariables.LIB_FILES_TAGNAME], jsonDataObject.imported_libs[importedLibName][HelperVariables.INCLUDE_DIRECTORIES_TAGNAME], jsonDataObject.imported_libs[importedLibName][HelperVariables.HEADER_FILES_TAGNAME])
 
 # Write linked_libs
 def writeProjectLinks(fileWriter, jsonDataObject):
