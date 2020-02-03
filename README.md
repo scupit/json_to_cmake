@@ -1,4 +1,5 @@
-# Cmake from Json - IN PROGRESS -
+# Cmake from Json - OLD -
+# This Project is old!!! See the new an improved one [HERE](https://github.com/scupit/json-to-cmake-rewrite)
 
 ## What is it?
 In short, this project is a python script which generates a CMakeLists.txt file from a user-written cmake_data.json file. Its goal is to somewhat automate the process of writing a CmakeLists file, and make visualizing what goes on in the file easier. Currently a work in progress, but functioning with limited functionality.
